@@ -1,0 +1,42 @@
+{
+  "name": "deadpool-runner",
+  "version": "0.1.0",
+  "description": "Retry failing commands with an ACP-powered fixer while preserving normal script output.",
+  "license": "MIT",
+  "bin": {
+    "dp-run": "./dist/bin.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./bin": "./dist/bin.mjs",
+    "./cli": "./dist/cli.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack src/index.ts src/cli.ts src/bin.ts",
+    "dev": "vp pack src/index.ts src/cli.ts src/bin.ts --watch",
+    "test": "vp test",
+    "test:e2e": "vp test tests/e2e.test.ts",
+    "check": "vp check",
+    "prepublishOnly": "vp run build",
+    "prepare": "vp config"
+  },
+  "dependencies": {
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "bumpp": "^11.0.1",
+    "typescript": "^6.0.2",
+    "vite-plus": "^0.1.14"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
