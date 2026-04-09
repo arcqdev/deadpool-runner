@@ -93,6 +93,12 @@ Enable verbose ACP client logs during fix attempts:
 dpr --verbose --prompt "Show your work while fixing." -- vp test
 ```
 
+Tune how much of the trailing error output gets sent into the ACP prompt:
+
+```bash
+dpr --max-output-chars 12000 --verbose -- vp test
+```
+
 ## CLI
 
 ```bash
@@ -106,6 +112,7 @@ Options:
 - `--repo <path>`: alias for `--cwd`, useful when you want to point at another repository
 - `--client <name>`: ACP client name, currently `codex`
 - `--retries <n>`: maximum fixer attempts after the initial failure
+- `--max-output-chars <n>`: maximum trailing error characters sent to the ACP client
 - `--prompt <text>`: seed prompt with repo context for the fixer
 - `--verbose`: stream detailed ACP client logs, with ACP output prefixed as `[acp-client]`
 - `--model <name>`: model override for the built-in Codex client
@@ -144,6 +151,18 @@ When a command fails, the built-in Codex client runs `codex exec` in the target 
 - The attempt number and retry budget
 - The seed prompt from config or CLI
 - Captured stdout/stderr, truncated to the configured limit
+
+For each runner invocation, debug artifacts are written under:
+
+```text
+~/.deadpool-runner/runs/<run-hash>/<run-num>/
+```
+
+That directory includes:
+
+- `solution.md`: where the ACP fixer is instructed to write its solution summary
+- `full-error.md`: the full captured command output for the current failed attempt
+- `input-error.md`: the truncated error payload that was actually sent to the ACP client
 
 By default the client runs with `--full-auto`. You can switch to a custom argument set through `acpClient.extraArgs`.
 

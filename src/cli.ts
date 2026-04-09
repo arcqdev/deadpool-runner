@@ -19,6 +19,7 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
       repo: { type: "string" },
       client: { type: "string" },
       retries: { type: "string" },
+      "max-output-chars": { type: "string" },
       prompt: { type: "string" },
       model: { type: "string" },
       color: { type: "string" },
@@ -29,9 +30,16 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
   const positional = [...values.positionals, ...afterSeparator];
   const command = normalizeCommand(positional);
   const retries = values.values.retries ? Number(values.values.retries) : undefined;
+  const maxOutputChars = values.values["max-output-chars"]
+    ? Number(values.values["max-output-chars"])
+    : undefined;
 
   if (values.values.retries && Number.isNaN(retries)) {
     throw new Error(`Invalid retries value "${values.values.retries}".`);
+  }
+
+  if (values.values["max-output-chars"] && Number.isNaN(maxOutputChars)) {
+    throw new Error(`Invalid max output chars value "${values.values["max-output-chars"]}".`);
   }
 
   return {
@@ -42,6 +50,7 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
     repo: values.values.repo,
     client: values.values.client,
     retries,
+    maxOutputChars,
     prompt: values.values.prompt,
     model: values.values.model,
     color: values.values.color as CliArgs["color"],
@@ -78,6 +87,8 @@ Options:
   --repo <path>        Alias for --cwd, for targeting a specific repository
   --client <name>      ACP client name, currently codex
   --retries <n>        Maximum fixer attempts after the initial failure
+  --max-output-chars <n>
+                       Maximum trailing error characters sent to the ACP client
   --prompt <text>      Seed prompt with repo context for the fixer
   --model <name>       Model override for the built-in Codex client
   --color <mode>       auto, always, or never for codex exec

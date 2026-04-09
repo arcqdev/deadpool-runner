@@ -23,7 +23,12 @@ export interface FailureContext {
   initialPrompt?: string;
   stdout: string;
   stderr: string;
+  fullCombinedOutput: string;
   combinedOutput: string;
+  runDirectory: string;
+  solutionPath: string;
+  fullErrorPath: string;
+  inputErrorPath: string;
 }
 
 export interface ACPClient {

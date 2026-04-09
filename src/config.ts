@@ -18,6 +18,7 @@ export interface CliArgs {
   repo?: string;
   client?: string;
   retries?: number;
+  maxOutputChars?: number;
   prompt?: string;
   model?: string;
   color?: "auto" | "always" | "never";
@@ -62,7 +63,7 @@ export async function resolveConfig(
       executable: fileConfig.acpClient?.executable,
     },
     env: fileConfig.env,
-    maxOutputChars: fileConfig.maxOutputChars ?? 16000,
+    maxOutputChars: args.maxOutputChars ?? fileConfig.maxOutputChars ?? 12000,
   };
 
   return { config, cwd };

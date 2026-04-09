@@ -1,4 +1,4 @@
-import { chmod, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,10 +38,16 @@ describe("dpr e2e", () => {
     const firstPrompt = await readPrompt(fixture.dir);
     expect(firstPrompt).toContain("We ran this script:");
     expect(firstPrompt).toContain("There were errors that you need to fix.");
-    expect(firstPrompt).toContain(
-      "Write down what your solution was in ~/.deadpool-runner/runs/solution.md.",
-    );
+    expect(firstPrompt).toContain("Write down what your solution was in ");
+    expect(firstPrompt).toContain("/.deadpool-runner/runs/");
+    expect(firstPrompt).toContain("/solution.md");
+    expect(firstPrompt).toContain("/full-error.md");
+    expect(firstPrompt).toContain("/input-error.md");
     expect(firstPrompt).toContain("Seed repo context for the fixer.");
+
+    const latestRun = await getLatestRunArtifacts(fixture.dir);
+    expect(await readFile(latestRun.fullErrorPath, "utf8")).toContain("BROKEN_AFTER_DELAY");
+    expect(await readFile(latestRun.inputErrorPath, "utf8")).toContain("BROKEN_AFTER_DELAY");
 
     await resetFixture(fixture.dir);
     const secondRun = await runDpRun(fixture.dir);
@@ -208,6 +214,7 @@ async function runDpRun(cwd: string, args: string[] = []) {
     env: {
       ...process.env,
       FORCE_COLOR: "0",
+      HOME: cwd,
       PATH: `${cwd}:${process.env.PATH ?? ""}`,
     },
   });
@@ -222,6 +229,33 @@ async function readFixCount(cwd: string) {
 
 async function readPrompt(cwd: string) {
   return await readFile(path.join(cwd, "last-prompt.txt"), "utf8");
+}
+
+async function getLatestRunArtifacts(cwd: string) {
+  const runsRoot = path.join(cwd, ".deadpool-runner", "runs");
+  const hashDirectories = (await readdir(runsRoot, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(runsRoot, entry.name));
+  expect(hashDirectories.length).toBeGreaterThan(0);
+
+  const runDirectories = (
+    await Promise.all(
+      hashDirectories.map(async (directory) =>
+        (await readdir(directory, { withFileTypes: true }))
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => path.join(directory, entry.name)),
+      ),
+    )
+  ).flat();
+  expect(runDirectories.length).toBeGreaterThan(0);
+
+  const latestDirectory = runDirectories.sort().at(-1)!;
+  return {
+    runDirectory: latestDirectory,
+    solutionPath: path.join(latestDirectory, "solution.md"),
+    fullErrorPath: path.join(latestDirectory, "full-error.md"),
+    inputErrorPath: path.join(latestDirectory, "input-error.md"),
+  };
 }
 
 function createBrokenScript(marker: string, phase: string) {

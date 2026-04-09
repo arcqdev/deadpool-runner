@@ -45,6 +45,12 @@ describe("parseCliArgs", () => {
 
     expect(args.verbose).toBe(true);
   });
+
+  test("parses --max-output-chars", () => {
+    const args = parseCliArgs(["--max-output-chars", "9000"]);
+
+    expect(args.maxOutputChars).toBe(9000);
+  });
 });
 
 describe("runCli", () => {
@@ -138,22 +144,33 @@ describe("createRunner", () => {
         }),
     });
 
-    const result = await runner.run({
-      cwd: dir,
-      command: [process.execPath, targetFile],
-      retries: 2,
-      initialPrompt: "repo guidance",
-      maxOutputChars: 5000,
-      env: {
-        FORCE_COLOR: "0",
-      },
-    });
+    const previousHome = process.env.HOME;
+    process.env.HOME = dir;
+
+    let result: RunResult;
+    try {
+      result = await runner.run({
+        cwd: dir,
+        command: [process.execPath, targetFile],
+        retries: 2,
+        initialPrompt: "repo guidance",
+        maxOutputChars: 5000,
+        env: {
+          FORCE_COLOR: "0",
+        },
+      });
+    } finally {
+      process.env.HOME = previousHome;
+    }
 
     expect(result.code).toBe(0);
     expect(fixFailure).toHaveBeenCalledTimes(1);
     expect(stdout.toString()).toContain("before fix");
     expect(stdout.toString()).toContain("after fix");
     expect(stderr.toString()).toContain("broken");
+    expect(fixFailure.mock.calls[0]?.[0].solutionPath).toContain(".deadpool-runner/runs/");
+    expect(fixFailure.mock.calls[0]?.[0].fullErrorPath).toContain("full-error.md");
+    expect(fixFailure.mock.calls[0]?.[0].inputErrorPath).toContain("input-error.md");
   });
 
   test("stops after the configured retry budget", async () => {
