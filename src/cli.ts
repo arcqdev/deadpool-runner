@@ -23,6 +23,8 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
       prompt: { type: "string" },
       model: { type: "string" },
       color: { type: "string" },
+      sandbox: { type: "string" },
+      "dangerously-bypass-approvals-and-sandbox": { type: "boolean" },
     },
     allowPositionals: true,
   });
@@ -54,6 +56,8 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
     prompt: values.values.prompt,
     model: values.values.model,
     color: values.values.color as CliArgs["color"],
+    sandbox: values.values.sandbox as CliArgs["sandbox"],
+    dangerouslyBypassApprovalsAndSandbox: values.values["dangerously-bypass-approvals-and-sandbox"],
     command,
   };
 }
@@ -92,6 +96,9 @@ Options:
   --prompt <text>      Seed prompt with repo context for the fixer
   --model <name>       Model override for the built-in Codex client
   --color <mode>       auto, always, or never for codex exec
+  --sandbox <mode>     read-only, workspace-write, or danger-full-access for codex exec
+  --dangerously-bypass-approvals-and-sandbox
+                       Run codex exec without approvals or sandboxing
 `;
 }
 

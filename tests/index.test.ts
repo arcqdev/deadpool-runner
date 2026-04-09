@@ -3,7 +3,14 @@ import os from "node:os";
 import path from "node:path";
 import { Writable } from "node:stream";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { getHelpText, loadConfig, parseCliArgs, runCli } from "../src/index.ts";
+import {
+  buildCodexArgs,
+  getHelpText,
+  loadConfig,
+  parseCliArgs,
+  resolveConfig,
+  runCli,
+} from "../src/index.ts";
 import { runCommand } from "../src/process.ts";
 import { createRunner } from "../src/runner.ts";
 import type { ACPClient, FailureContext, RunResult } from "../src/types.ts";
@@ -50,6 +57,17 @@ describe("parseCliArgs", () => {
     const args = parseCliArgs(["--max-output-chars", "9000"]);
 
     expect(args.maxOutputChars).toBe(9000);
+  });
+
+  test("parses codex sandbox overrides", () => {
+    const args = parseCliArgs([
+      "--sandbox",
+      "danger-full-access",
+      "--dangerously-bypass-approvals-and-sandbox",
+    ]);
+
+    expect(args.sandbox).toBe("danger-full-access");
+    expect(args.dangerouslyBypassApprovalsAndSandbox).toBe(true);
   });
 });
 
@@ -110,6 +128,33 @@ describe("loadConfig", () => {
   });
 });
 
+describe("resolveConfig", () => {
+  test("merges codex sandbox overrides from the cli", async () => {
+    const dir = await createTempDir();
+    await writeFile(
+      path.join(dir, "deadpool-runner.config.ts"),
+      `
+      export default {
+        command: ["node", "script.js"],
+        acpClient: {
+          name: "codex",
+          sandbox: "workspace-write",
+        },
+      };
+      `,
+    );
+
+    const { config } = await resolveConfig({
+      cwd: dir,
+      sandbox: "danger-full-access",
+      dangerouslyBypassApprovalsAndSandbox: true,
+    });
+
+    expect(config.acpClient?.sandbox).toBe("danger-full-access");
+    expect(config.acpClient?.dangerouslyBypassApprovalsAndSandbox).toBe(true);
+  });
+});
+
 describe("runCommand", () => {
   test("captures and mirrors stdout and stderr", async () => {
     const stdout = createBufferStream();
@@ -133,6 +178,39 @@ describe("runCommand", () => {
     expect(result.combinedOutput).toContain("boom");
     expect(stdout.toString()).toContain("hello");
     expect(stderr.toString()).toContain("boom");
+  });
+});
+
+describe("buildCodexArgs", () => {
+  test("supports explicit sandbox overrides", () => {
+    expect(buildCodexArgs({ sandbox: "danger-full-access", fullAuto: false }, "/repo")).toEqual([
+      "exec",
+      "-C",
+      "/repo",
+      "--skip-git-repo-check",
+      "--sandbox",
+      "danger-full-access",
+      "-",
+    ]);
+  });
+
+  test("supports bypassing approvals and sandboxing", () => {
+    expect(
+      buildCodexArgs(
+        {
+          dangerouslyBypassApprovalsAndSandbox: true,
+          fullAuto: false,
+        },
+        "/repo",
+      ),
+    ).toEqual([
+      "exec",
+      "-C",
+      "/repo",
+      "--skip-git-repo-check",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "-",
+    ]);
   });
 });
 

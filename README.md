@@ -107,6 +107,12 @@ Tune how much of the trailing error output gets sent into the ACP prompt:
 dpr --max-output-chars 12000 --verbose -- vp test
 ```
 
+If Codex is already running inside an external sandbox and its default `workspace-write` sandbox fails to initialize, pass through a different Codex execution mode:
+
+```bash
+dpr --sandbox danger-full-access --dangerously-bypass-approvals-and-sandbox -- vp test
+```
+
 ## CLI
 
 ```bash
@@ -125,6 +131,8 @@ Options:
 - `--verbose`: stream detailed ACP client logs, with ACP output prefixed as `[acp-client]`
 - `--model <name>`: model override for the built-in Codex client
 - `--color <mode>`: `auto`, `always`, or `never` for `codex exec`
+- `--sandbox <mode>`: `read-only`, `workspace-write`, or `danger-full-access` for `codex exec`
+- `--dangerously-bypass-approvals-and-sandbox`: run `codex exec` without approvals or sandboxing
 
 ## Config
 
@@ -145,6 +153,8 @@ export default {
     name: "codex",
     model: "gpt-5.4",
     fullAuto: true,
+    sandbox: "danger-full-access",
+    dangerouslyBypassApprovalsAndSandbox: true,
     color: "never",
     verbose: true,
   },
@@ -188,6 +198,8 @@ That directory includes:
 - `input-error.md`: the truncated error payload that was actually sent to the ACP client
 
 By default the client runs with `--full-auto`. You can switch to a custom argument set through `acpClient.extraArgs`.
+
+If Codex is already externally sandboxed and `--full-auto` is too restrictive for that environment, set `acpClient.sandbox` and, if needed, `acpClient.dangerouslyBypassApprovalsAndSandbox`.
 
 ## Development
 

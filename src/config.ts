@@ -23,6 +23,8 @@ export interface CliArgs {
   prompt?: string;
   model?: string;
   color?: "auto" | "always" | "never";
+  sandbox?: "read-only" | "workspace-write" | "danger-full-access";
+  dangerouslyBypassApprovalsAndSandbox?: boolean;
   command?: CommandSpec;
   help?: boolean;
   verbose?: boolean;
@@ -57,6 +59,10 @@ export async function resolveConfig(
       name: args.client ?? fileConfig.acpClient?.name ?? "codex",
       model: args.model ?? fileConfig.acpClient?.model,
       color: args.color ?? fileConfig.acpClient?.color,
+      sandbox: args.sandbox ?? fileConfig.acpClient?.sandbox,
+      dangerouslyBypassApprovalsAndSandbox:
+        args.dangerouslyBypassApprovalsAndSandbox ??
+        fileConfig.acpClient?.dangerouslyBypassApprovalsAndSandbox,
       verbose: args.verbose ?? fileConfig.acpClient?.verbose,
       fullAuto: fileConfig.acpClient?.fullAuto,
       extraArgs: fileConfig.acpClient?.extraArgs,

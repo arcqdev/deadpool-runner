@@ -40,6 +40,8 @@ export interface ACPClientConfig {
   name?: string;
   model?: string;
   color?: "auto" | "always" | "never";
+  sandbox?: "read-only" | "workspace-write" | "danger-full-access";
+  dangerouslyBypassApprovalsAndSandbox?: boolean;
   verbose?: boolean;
   fullAuto?: boolean;
   extraArgs?: string[];
