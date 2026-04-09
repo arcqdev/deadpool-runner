@@ -15,12 +15,14 @@ const DEFAULT_CONFIG_FILES = [
 export interface CliArgs {
   config?: string;
   cwd?: string;
+  repo?: string;
   client?: string;
   retries?: number;
   prompt?: string;
   model?: string;
   color?: "auto" | "always" | "never";
   command?: CommandSpec;
+  help?: boolean;
 }
 
 export async function loadConfig(
@@ -41,7 +43,7 @@ export async function loadConfig(
 export async function resolveConfig(
   args: CliArgs,
 ): Promise<{ config: DeadpoolRunnerConfig; cwd: string }> {
-  const cwd = path.resolve(args.cwd ?? process.cwd());
+  const cwd = path.resolve(args.repo ?? args.cwd ?? process.cwd());
   const fileConfig = await loadConfig(cwd, args.config);
   const config: DeadpoolRunnerConfig = {
     ...fileConfig,

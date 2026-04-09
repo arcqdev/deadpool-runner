@@ -75,6 +75,18 @@ Or skip the config file and pass the command directly:
 dpr --retries 2 --prompt "This is a Node CLI package. Keep fixes minimal." -- vp test
 ```
 
+Target a different repository explicitly:
+
+```bash
+dpr --repo /path/to/other-repo -- vp test
+```
+
+Target a repo and provide a custom fixer prompt:
+
+```bash
+dpr --repo /path/to/other-repo --prompt "This repo uses pnpm and strict TypeScript. Fix root causes only." -- vp test
+```
+
 ## CLI
 
 ```bash
@@ -85,6 +97,7 @@ Options:
 
 - `--config <path>`: explicit config file path
 - `--cwd <path>`: working directory for the wrapped command and ACP client
+- `--repo <path>`: alias for `--cwd`, useful when you want to point at another repository
 - `--client <name>`: ACP client name, currently `codex`
 - `--retries <n>`: maximum fixer attempts after the initial failure
 - `--prompt <text>`: seed prompt with repo context for the fixer

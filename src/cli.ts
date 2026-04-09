@@ -12,8 +12,10 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
   const values = parseArgs({
     args: beforeSeparator,
     options: {
+      help: { type: "boolean", short: "h" },
       config: { type: "string" },
       cwd: { type: "string" },
+      repo: { type: "string" },
       client: { type: "string" },
       retries: { type: "string" },
       prompt: { type: "string" },
@@ -32,8 +34,10 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
   }
 
   return {
+    help: values.values.help,
     config: values.values.config,
     cwd: values.values.cwd,
+    repo: values.values.repo,
     client: values.values.client,
     retries,
     prompt: values.values.prompt,
@@ -45,6 +49,12 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
 
 export async function runCli(argv = process.argv.slice(2)): Promise<number> {
   const args = parseCliArgs(argv);
+
+  if (args.help) {
+    process.stdout.write(getHelpText());
+    return 0;
+  }
+
   const { config, cwd } = await resolveConfig(args);
   const runner = createRunner();
   const result = await runner.run({
@@ -53,6 +63,22 @@ export async function runCli(argv = process.argv.slice(2)): Promise<number> {
   });
 
   return result.code;
+}
+
+export function getHelpText(): string {
+  return `dpr [options] -- <command> [args...]
+
+Options:
+  -h, --help           Show this help message
+  --config <path>      Explicit config file path
+  --cwd <path>         Working directory for the wrapped command and ACP client
+  --repo <path>        Alias for --cwd, for targeting a specific repository
+  --client <name>      ACP client name, currently codex
+  --retries <n>        Maximum fixer attempts after the initial failure
+  --prompt <text>      Seed prompt with repo context for the fixer
+  --model <name>       Model override for the built-in Codex client
+  --color <mode>       auto, always, or never for codex exec
+`;
 }
 
 function normalizeCommand(parts: string[]): CommandSpec | undefined {

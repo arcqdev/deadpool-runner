@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { Writable } from "node:stream";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { loadConfig, parseCliArgs } from "../src/index.ts";
+import { getHelpText, loadConfig, parseCliArgs, runCli } from "../src/index.ts";
 import { runCommand } from "../src/process.ts";
 import { createRunner } from "../src/runner.ts";
 import type { ACPClient, FailureContext, RunResult } from "../src/types.ts";
@@ -25,6 +25,30 @@ describe("parseCliArgs", () => {
     expect(args.retries).toBe(4);
     expect(args.prompt).toBe("seed");
     expect(args.command).toEqual(["vp", "test"]);
+  });
+
+  test("parses --help", () => {
+    const args = parseCliArgs(["--help"]);
+
+    expect(args.help).toBe(true);
+  });
+
+  test("parses --repo as a cwd alias", () => {
+    const args = parseCliArgs(["--repo", "/tmp/other-repo", "--prompt", "fix it"]);
+
+    expect(args.repo).toBe("/tmp/other-repo");
+    expect(args.prompt).toBe("fix it");
+  });
+});
+
+describe("runCli", () => {
+  test("prints help and exits successfully", async () => {
+    const write = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    await expect(runCli(["--help"])).resolves.toBe(0);
+    expect(write).toHaveBeenCalledWith(getHelpText());
+
+    write.mockRestore();
   });
 });
 
