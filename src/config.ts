@@ -23,6 +23,7 @@ export interface CliArgs {
   color?: "auto" | "always" | "never";
   command?: CommandSpec;
   help?: boolean;
+  verbose?: boolean;
 }
 
 export async function loadConfig(
@@ -55,6 +56,7 @@ export async function resolveConfig(
       name: args.client ?? fileConfig.acpClient?.name ?? "codex",
       model: args.model ?? fileConfig.acpClient?.model,
       color: args.color ?? fileConfig.acpClient?.color,
+      verbose: args.verbose ?? fileConfig.acpClient?.verbose,
       fullAuto: fileConfig.acpClient?.fullAuto,
       extraArgs: fileConfig.acpClient?.extraArgs,
       executable: fileConfig.acpClient?.executable,

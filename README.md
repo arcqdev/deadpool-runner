@@ -87,6 +87,12 @@ Target a repo and provide a custom fixer prompt:
 dpr --repo /path/to/other-repo --prompt "This repo uses pnpm and strict TypeScript. Fix root causes only." -- vp test
 ```
 
+Enable verbose ACP client logs during fix attempts:
+
+```bash
+dpr --verbose --prompt "Show your work while fixing." -- vp test
+```
+
 ## CLI
 
 ```bash
@@ -101,6 +107,7 @@ Options:
 - `--client <name>`: ACP client name, currently `codex`
 - `--retries <n>`: maximum fixer attempts after the initial failure
 - `--prompt <text>`: seed prompt with repo context for the fixer
+- `--verbose`: stream detailed ACP client logs, with ACP output prefixed as `[acp-client]`
 - `--model <name>`: model override for the built-in Codex client
 - `--color <mode>`: `auto`, `always`, or `never` for `codex exec`
 

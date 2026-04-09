@@ -13,17 +13,34 @@ export function createCodexClient(config: ACPClientConfig = {}): ACPClient {
         const child = spawn(executable, args, {
           cwd: context.cwd,
           env: process.env,
-          stdio: ["pipe", "inherit", "inherit"],
+          stdio: config.verbose ? ["pipe", "pipe", "pipe"] : ["pipe", "inherit", "inherit"],
         });
+
+        if (config.verbose) {
+          process.stderr.write(
+            `[acp-client] starting codex fix attempt ${context.attempt}/${context.maxRetries}\n`,
+          );
+          process.stderr.write(`[acp-client] command: ${executable} ${args.join(" ")}\n`);
+          pipePrefixedOutput(child.stdout, process.stdout);
+          pipePrefixedOutput(child.stderr, process.stderr);
+        }
 
         child.stdin?.end(prompt);
         child.on("error", reject);
         child.on("close", (code) => {
           if (code === 0) {
+            if (config.verbose) {
+              process.stderr.write(
+                `[acp-client] codex fix attempt ${context.attempt} completed successfully\n`,
+              );
+            }
             resolve();
             return;
           }
 
+          if (config.verbose) {
+            process.stderr.write(`[acp-client] codex fixer exited with code ${code ?? 1}\n`);
+          }
           reject(new Error(`Codex fixer exited with code ${code ?? 1}.`));
         });
       });
@@ -89,4 +106,30 @@ function formatCommand(command: FailureContext["command"]): string {
   return typeof command === "string"
     ? command
     : command.map((part) => (/\s/.test(part) ? JSON.stringify(part) : part)).join(" ");
+}
+
+function pipePrefixedOutput(
+  stream: NodeJS.ReadableStream | null | undefined,
+  target: NodeJS.WriteStream,
+) {
+  if (!stream) {
+    return;
+  }
+
+  let remainder = "";
+  stream.setEncoding("utf8");
+  stream.on("data", (chunk: string) => {
+    remainder += chunk;
+    const lines = remainder.split(/\r?\n/);
+    remainder = lines.pop() ?? "";
+
+    for (const line of lines) {
+      target.write(`[acp-client] ${line}\n`);
+    }
+  });
+  stream.on("end", () => {
+    if (remainder.length > 0) {
+      target.write(`[acp-client] ${remainder}\n`);
+    }
+  });
 }

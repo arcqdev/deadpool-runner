@@ -13,6 +13,7 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
     args: beforeSeparator,
     options: {
       help: { type: "boolean", short: "h" },
+      verbose: { type: "boolean", short: "v" },
       config: { type: "string" },
       cwd: { type: "string" },
       repo: { type: "string" },
@@ -35,6 +36,7 @@ export function parseCliArgs(argv = process.argv.slice(2)): CliArgs {
 
   return {
     help: values.values.help,
+    verbose: values.values.verbose,
     config: values.values.config,
     cwd: values.values.cwd,
     repo: values.values.repo,
@@ -70,6 +72,7 @@ export function getHelpText(): string {
 
 Options:
   -h, --help           Show this help message
+  -v, --verbose        Stream detailed ACP client logs during fix attempts
   --config <path>      Explicit config file path
   --cwd <path>         Working directory for the wrapped command and ACP client
   --repo <path>        Alias for --cwd, for targeting a specific repository

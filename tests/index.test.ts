@@ -39,6 +39,12 @@ describe("parseCliArgs", () => {
     expect(args.repo).toBe("/tmp/other-repo");
     expect(args.prompt).toBe("fix it");
   });
+
+  test("parses --verbose", () => {
+    const args = parseCliArgs(["--verbose"]);
+
+    expect(args.verbose).toBe(true);
+  });
 });
 
 describe("runCli", () => {

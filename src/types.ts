@@ -35,6 +35,7 @@ export interface ACPClientConfig {
   name?: string;
   model?: string;
   color?: "auto" | "always" | "never";
+  verbose?: boolean;
   fullAuto?: boolean;
   extraArgs?: string[];
   executable?: string;

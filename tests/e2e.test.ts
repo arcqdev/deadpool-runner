@@ -91,6 +91,34 @@ describe("dpr e2e", () => {
     expect(result.stderr).toContain("BROKEN_FOREVER");
     expect(await readFixCount(fixture.dir)).toBe(1);
   });
+
+  test("streams verbose ACP client logs with the expected prefix", async () => {
+    const fixture = await createFixture({
+      strategy: "single",
+      retries: 1,
+      withConfig: false,
+      initialPrompt: "Verbose mode test.",
+    });
+
+    await resetFixture(fixture.dir);
+    const result = await runDpRun(fixture.dir, [
+      "--client",
+      "codex",
+      "--retries",
+      "1",
+      "--verbose",
+      "--prompt",
+      "Verbose mode test.",
+      "--",
+      process.execPath,
+      "script-under-test.mjs",
+    ]);
+
+    expect(result.code).toBe(0);
+    expect(result.stderr).toContain("[acp-client] starting codex fix attempt 1/1");
+    expect(result.stdout).toContain("[acp-client] fake codex stdout");
+    expect(result.stderr).toContain("[acp-client] fake codex stderr");
+  });
 });
 
 async function createFixture(options: {
@@ -241,6 +269,9 @@ const statePath = path.join(cwd, "fix-state.json");
 const state = JSON.parse(readFileSync(statePath, "utf8"));
 state.invocations += 1;
 writeFileSync(statePath, JSON.stringify(state));
+
+console.log("fake codex stdout");
+console.error("fake codex stderr");
 
 if (plan.strategy === "single") {
   copyFileSync(path.join(cwd, "fixed-template.mjs"), path.join(cwd, "script-under-test.mjs"));
