@@ -1,8 +1,24 @@
 {
-  "name": "deadpool-runner",
+  "name": "@arcqdev/deadpool-runner",
   "version": "0.1.0",
   "description": "Retry failing commands with an ACP-powered fixer while preserving normal script output.",
+  "keywords": [
+    "acp",
+    "automation",
+    "cli",
+    "codex",
+    "developer-tools",
+    "retry"
+  ],
+  "homepage": "https://github.com/arcqdev/deadpool-runner#readme",
+  "bugs": {
+    "url": "https://github.com/arcqdev/deadpool-runner/issues"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arcqdev/deadpool-runner.git"
+  },
   "bin": {
     "dp-run": "./dist/bin.mjs"
   },

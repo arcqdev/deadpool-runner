@@ -1,6 +1,6 @@
-# deadpool-runner
+# @arcqdev/deadpool-runner
 
-`deadpool-runner` is a small Node utility that wraps any script, streams its output through unchanged, and when the script fails it asks an ACP-backed fixer to repair the repo before retrying.
+`@arcqdev/deadpool-runner` is a small Node utility that wraps any script, streams its output through unchanged, and when the script fails it asks an ACP-backed fixer to repair the repo before retrying.
 
 Today it ships with a built-in Codex client. The runner is structured around a client interface so additional ACP clients can be added without changing the retry engine.
 
@@ -15,6 +15,18 @@ Pull requests are welcome.
 - Accepts repo-specific context via `deadpool-runner.config.ts` and/or CLI flags
 
 ## Install
+
+From npm:
+
+```bash
+npm install -g @arcqdev/deadpool-runner
+```
+
+Or run it without installing globally:
+
+```bash
+npx @arcqdev/deadpool-runner --help
+```
 
 For local development in this repo:
 
@@ -31,7 +43,7 @@ That exposes the default binary as `dp-run`.
 Create a `deadpool-runner.config.ts` in the repo you want to protect:
 
 ```ts
-import type { DeadpoolRunnerConfig } from "deadpool-runner";
+import type { DeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
 
 const config: DeadpoolRunnerConfig = {
   command: "vp test",
@@ -84,7 +96,7 @@ Options:
 The runner looks for `deadpool-runner.config.ts`, `deadpool-runner.config.mts`, `deadpool-runner.config.js`, or `deadpool-runner.config.mjs` in the working directory unless `--config` is passed.
 
 ```ts
-import type { DeadpoolRunnerConfig } from "deadpool-runner";
+import type { DeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
 
 export default {
   command: ["vp", "test"],
