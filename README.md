@@ -36,7 +36,7 @@ vp run build
 vp link . -- --global
 ```
 
-That exposes the default binary as `dp-run`.
+That exposes the default binary as `dpr`.
 
 ## Quick Start
 
@@ -66,19 +66,19 @@ export default config;
 Then run:
 
 ```bash
-dp-run
+dpr
 ```
 
 Or skip the config file and pass the command directly:
 
 ```bash
-dp-run --retries 2 --prompt "This is a Node CLI package. Keep fixes minimal." -- vp test
+dpr --retries 2 --prompt "This is a Node CLI package. Keep fixes minimal." -- vp test
 ```
 
 ## CLI
 
 ```bash
-dp-run [options] -- <command> [args...]
+dpr [options] -- <command> [args...]
 ```
 
 Options:

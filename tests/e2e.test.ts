@@ -18,7 +18,7 @@ afterEach(async () => {
   );
 });
 
-describe("dp-run e2e", () => {
+describe("dpr e2e", () => {
   test("uses repo config, repairs a delayed failure, and can be reset and rerun", async () => {
     const fixture = await createFixture({
       strategy: "single",
