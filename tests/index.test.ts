@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { Writable } from "node:stream";
@@ -82,6 +82,31 @@ describe("loadConfig", () => {
     expect(config.retries).toBe(5);
     expect(config.command).toEqual(["node", "script.js"]);
     expect(config.initialPrompt).toBe("repo context");
+  });
+
+  test("creates and loads the default global config when no repo config exists", async () => {
+    const dir = await createTempDir();
+    const previousHome = process.env.HOME;
+    process.env.HOME = dir;
+
+    try {
+      const config = await loadConfig(dir);
+      const globalConfigPath = path.join(dir, ".config", "deadpool-runner", "config.json");
+
+      await access(globalConfigPath);
+      expect(config.acpClient?.name).toBe("codex");
+      expect(config.acpClient?.model).toBe("gpt-5.4");
+      expect(config.acpClient?.fullAuto).toBe(true);
+      expect(config.maxOutputChars).toBe(12000);
+
+      const fileContents = JSON.parse(await readFile(globalConfigPath, "utf8")) as {
+        acpClient?: { model?: string; fullAuto?: boolean };
+      };
+      expect(fileContents.acpClient?.model).toBe("gpt-5.4");
+      expect(fileContents.acpClient?.fullAuto).toBe(true);
+    } finally {
+      process.env.HOME = previousHome;
+    }
   });
 });
 

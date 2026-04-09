@@ -1,4 +1,5 @@
-import { access } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { tsImport } from "tsx/esm/api";
@@ -34,12 +35,11 @@ export async function loadConfig(
   const configPath = explicitPath ? path.resolve(cwd, explicitPath) : await findConfigPath(cwd);
 
   if (!configPath) {
-    return {};
+    const globalConfigPath = await ensureGlobalConfigPath();
+    return await importConfigModule(globalConfigPath);
   }
 
-  const imported = await importConfigModule(configPath);
-  const config = unwrapConfigExport(imported);
-  return config satisfies DeadpoolRunnerConfig;
+  return await importConfigModule(configPath);
 }
 
 export async function resolveConfig(
@@ -93,11 +93,47 @@ async function findConfigPath(cwd: string): Promise<string | undefined> {
 }
 
 async function importConfigModule(configPath: string) {
-  if (/\.[cm]?tsx?$/.test(configPath)) {
-    return await tsImport(pathToFileURL(configPath).href, import.meta.url);
+  if (configPath.endsWith(".json")) {
+    const fileContents = await readFile(configPath, "utf8");
+    return unwrapConfigExport(JSON.parse(fileContents));
   }
 
-  return await import(pathToFileURL(configPath).href);
+  if (/\.[cm]?tsx?$/.test(configPath)) {
+    return unwrapConfigExport(await tsImport(pathToFileURL(configPath).href, import.meta.url));
+  }
+
+  return unwrapConfigExport(await import(pathToFileURL(configPath).href));
+}
+
+async function ensureGlobalConfigPath(): Promise<string> {
+  const globalConfigPath = getGlobalConfigPath();
+  const configDirectory = path.dirname(globalConfigPath);
+  await mkdir(configDirectory, { recursive: true });
+
+  try {
+    await access(globalConfigPath);
+  } catch {
+    await writeFile(globalConfigPath, JSON.stringify(getDefaultGlobalConfig(), null, 2) + "\n");
+  }
+
+  return globalConfigPath;
+}
+
+function getDefaultGlobalConfig(): DeadpoolRunnerConfig {
+  return {
+    retries: 3,
+    maxOutputChars: 12000,
+    acpClient: {
+      name: "codex",
+      model: "gpt-5.4",
+      fullAuto: true,
+      color: "never",
+    },
+  };
+}
+
+function getGlobalConfigPath(): string {
+  return path.join(homedir(), ".config", "deadpool-runner", "config.json");
 }
 
 function unwrapConfigExport(moduleValue: unknown): DeadpoolRunnerConfig {

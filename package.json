@@ -1,6 +1,6 @@
 {
   "name": "@arcqdev/deadpool-runner",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Retry failing commands with an ACP-powered fixer while preserving normal script output.",
   "keywords": [
     "acp",

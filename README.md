@@ -63,6 +63,14 @@ Fix the root cause instead of suppressing errors.
 export default config;
 ```
 
+If you do not have a repo-local config, `dpr` also falls back to:
+
+```text
+~/.config/deadpool-runner/config.json
+```
+
+If that file does not exist yet, `dpr` creates it automatically with a permissive Codex default using `gpt-5.4`.
+
 Then run:
 
 ```bash
@@ -129,7 +137,7 @@ export default {
   command: ["vp", "test"],
   retries: 3,
   initialPrompt: "The repo uses strict TypeScript and Vite+ commands.",
-  maxOutputChars: 20000,
+  maxOutputChars: 12000,
   env: {
     CI: "1",
   },
@@ -138,9 +146,24 @@ export default {
     model: "gpt-5.4",
     fullAuto: true,
     color: "never",
-    extraArgs: ["--skip-git-repo-check"],
+    verbose: true,
   },
 } satisfies DeadpoolRunnerConfig;
+```
+
+Equivalent user-level default config:
+
+```json
+{
+  "retries": 3,
+  "maxOutputChars": 12000,
+  "acpClient": {
+    "name": "codex",
+    "model": "gpt-5.4",
+    "fullAuto": true,
+    "color": "never"
+  }
+}
 ```
 
 ## Built-In Codex Client
