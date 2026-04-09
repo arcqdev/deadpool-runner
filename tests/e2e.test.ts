@@ -35,7 +35,13 @@ describe("dpr e2e", () => {
     expect(firstRun.stdout).toContain("phase: fixed");
     expect(firstRun.stderr).toContain("BROKEN_AFTER_DELAY");
     expect(await readFixCount(fixture.dir)).toBe(1);
-    expect(await readPrompt(fixture.dir)).toContain("Seed repo context for the fixer.");
+    const firstPrompt = await readPrompt(fixture.dir);
+    expect(firstPrompt).toContain("We ran this script:");
+    expect(firstPrompt).toContain("There were errors that you need to fix.");
+    expect(firstPrompt).toContain(
+      "Write down what your solution was in ~/.deadpool-runner/runs/solution.md.",
+    );
+    expect(firstPrompt).toContain("Seed repo context for the fixer.");
 
     await resetFixture(fixture.dir);
     const secondRun = await runDpRun(fixture.dir);

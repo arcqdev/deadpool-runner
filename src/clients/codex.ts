@@ -76,11 +76,15 @@ function buildCodexArgs(config: ACPClientConfig, cwd: string): string[] {
 }
 
 function buildPrompt(context: FailureContext): string {
+  const command = formatCommand(context.command);
   const sections = [
+    `We ran this script: ${command}`,
+    "There were errors that you need to fix.",
+    "Write down what your solution was in ~/.deadpool-runner/runs/solution.md.",
     "You are fixing a failing repository command so it can pass on the next retry.",
     `Working directory: ${context.cwd}`,
     `Attempt: ${context.attempt} of ${context.maxRetries}`,
-    `Command: ${formatCommand(context.command)}`,
+    `Command: ${command}`,
   ];
 
   if (context.initialPrompt) {
