@@ -54,14 +54,15 @@ export function createCodexClient(config: ACPClientConfig = {}): ACPClient {
 
 export function buildCodexArgs(config: ACPClientConfig, cwd: string): string[] {
   const args = ["exec", "-C", cwd, "--skip-git-repo-check"];
+  const bypassApprovalsAndSandbox = config.dangerouslyBypassApprovalsAndSandbox === true;
 
-  if (config.dangerouslyBypassApprovalsAndSandbox) {
+  if (bypassApprovalsAndSandbox) {
     args.push("--dangerously-bypass-approvals-and-sandbox");
   } else if (config.sandbox) {
     args.push("--sandbox", config.sandbox);
   }
 
-  if (config.fullAuto !== false) {
+  if (!bypassApprovalsAndSandbox && config.fullAuto !== false) {
     args.push("--full-auto");
   }
 

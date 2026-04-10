@@ -199,7 +199,7 @@ That directory includes:
 
 By default the client runs with `--full-auto`. You can switch to a custom argument set through `acpClient.extraArgs`.
 
-If Codex is already externally sandboxed and `--full-auto` is too restrictive for that environment, set `acpClient.sandbox` and, if needed, `acpClient.dangerouslyBypassApprovalsAndSandbox`.
+If Codex is already externally sandboxed and `--full-auto` is too restrictive for that environment, set `acpClient.sandbox` and, if needed, `acpClient.dangerouslyBypassApprovalsAndSandbox`. When `dangerouslyBypassApprovalsAndSandbox` is enabled, deadpool-runner treats it as overriding `--full-auto` and only passes the dangerous flag through to `codex exec`.
 
 ## Development
 

@@ -194,6 +194,24 @@ describe("buildCodexArgs", () => {
     ]);
   });
 
+  test("treats bypassing approvals and sandboxing as overriding full-auto", () => {
+    expect(
+      buildCodexArgs(
+        {
+          dangerouslyBypassApprovalsAndSandbox: true,
+        },
+        "/repo",
+      ),
+    ).toEqual([
+      "exec",
+      "-C",
+      "/repo",
+      "--skip-git-repo-check",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "-",
+    ]);
+  });
+
   test("supports bypassing approvals and sandboxing", () => {
     expect(
       buildCodexArgs(
