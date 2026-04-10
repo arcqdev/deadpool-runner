@@ -3,42 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Deadpool Runner — Self-Healing Script Runner Powered by AI</title>
+    <title>Deadpool Runner — Self-Healing CLI</title>
     <meta
       name="description"
-      content="Deadpool Runner automatically retries failing scripts by using AI to fix errors in your codebase. Never babysit a broken build again."
+      content="Run any command. If it fails, AI fixes your code and reruns it. Self-healing scripts."
     />
     <meta
       name="keywords"
-      content="deadpool runner, AI code fixer, automatic retry, self-healing scripts, CI/CD repair, codex, developer tools, npm, CLI tool"
+      content="deadpool runner, AI code fixer, automatic retry, self-healing scripts, CLI tool"
     />
     <meta name="author" content="arcqdev" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Deadpool Runner — Self-Healing Script Runner" />
+    <meta property="og:title" content="Deadpool Runner — Self-Healing CLI" />
     <meta
       property="og:description"
-      content="Automatically retry failing scripts by using AI to fix errors. Your scripts regenerate like Deadpool."
+      content="Run any command. If it fails, AI fixes your code and reruns it."
     />
     <meta
       property="og:image"
-      content="https://www.clipartmax.com/png/middle/50-509081_cute-deadpool-chibi-png-deadpool-chibi-drawing.png"
+      content="https://arcqdev.github.io/deadpool-runner/deadpool-mascot.png"
     />
     <meta property="og:url" content="https://arcqdev.github.io/deadpool-runner/" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Deadpool Runner" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Deadpool Runner — Self-Healing Script Runner" />
+    <meta name="twitter:title" content="Deadpool Runner — Self-Healing CLI" />
     <meta
       name="twitter:description"
-      content="Automatically retry failing scripts by using AI to fix errors. Your scripts regenerate like Deadpool."
+      content="Run any command. If it fails, AI fixes your code and reruns it."
     />
     <meta
       name="twitter:image"
-      content="https://www.clipartmax.com/png/middle/50-509081_cute-deadpool-chibi-png-deadpool-chibi-drawing.png"
+      content="https://arcqdev.github.io/deadpool-runner/deadpool-mascot.png"
     />
 
     <!-- Canonical -->
@@ -50,7 +49,7 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Deadpool Runner",
-        "description": "Self-healing script runner that automatically retries failing commands by using AI to fix errors in your codebase.",
+        "description": "Self-healing CLI. Run any command — if it fails, AI fixes your code and reruns it.",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Linux, Windows",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -60,40 +59,31 @@
           "url": "https://github.com/arcqdev"
         },
         "url": "https://arcqdev.github.io/deadpool-runner/",
-        "softwareVersion": "0.1.9",
         "license": "https://opensource.org/licenses/MIT"
       }
     </script>
 
-    <!-- Favicon (Deadpool themed) -->
+    <link rel="icon" type="image/png" href="deadpool-mascot.png" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="icon"
-      type="image/png"
-      href="https://www.clipartmax.com/png/middle/50-509081_cute-deadpool-chibi-png-deadpool-chibi-drawing.png"
+      href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
     />
 
     <style>
       :root {
-        --red-600: #dc2626;
-        --red-700: #b91c1c;
-        --red-800: #991b1b;
-        --red-900: #7f1d1d;
-        --red-50: #fef2f2;
-        --red-100: #fee2e2;
-        --gray-50: #fafafa;
-        --gray-100: #f4f4f5;
-        --gray-200: #e4e4e7;
-        --gray-300: #d4d4d8;
-        --gray-400: #a1a1aa;
-        --gray-500: #71717a;
-        --gray-600: #52525b;
-        --gray-700: #3f3f46;
-        --gray-800: #27272a;
-        --gray-900: #18181b;
-        --gray-950: #09090b;
-        --font-mono:
-          "JetBrains Mono", "Fira Code", "Cascadia Code", "SF Mono", ui-monospace, monospace;
-        --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        --red: #e11d48;
+        --red-dark: #be123c;
+        --yellow: #facc15;
+        --yellow-dark: #eab308;
+        --black: #1a1a2e;
+        --white: #f8f8f8;
+        --font-comic: "Comic Neue", cursive;
+        --font-title: "Bangers", cursive;
+        --font-mono: "JetBrains Mono", monospace;
       }
 
       * {
@@ -102,16 +92,24 @@
         box-sizing: border-box;
       }
 
-      html {
-        scroll-behavior: smooth;
+      body {
+        font-family: var(--font-comic);
+        background: var(--black);
+        color: var(--white);
+        line-height: 1.6;
+        overflow-x: hidden;
       }
 
-      body {
-        font-family: var(--font-sans);
-        background: var(--gray-950);
-        color: var(--gray-300);
-        line-height: 1.7;
-        -webkit-font-smoothing: antialiased;
+      /* Halftone background */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.05;
+        background-image: radial-gradient(circle, #fff 1.5px, transparent 1.5px);
+        background-size: 14px 14px;
+        pointer-events: none;
       }
 
       /* ---- NAV ---- */
@@ -121,65 +119,53 @@
         left: 0;
         right: 0;
         z-index: 100;
-        background: rgba(9, 9, 11, 0.8);
-        backdrop-filter: blur(16px) saturate(180%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(26, 26, 46, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 4px solid var(--red);
       }
       .nav-inner {
-        max-width: 1200px;
+        max-width: 800px;
         margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 2rem;
-        height: 64px;
+        padding: 0 1.5rem;
+        height: 56px;
       }
       .nav-brand {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.6rem;
         text-decoration: none;
       }
       .nav-brand img {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         object-fit: contain;
       }
       .nav-brand span {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #fff;
+        font-family: var(--font-title);
+        font-size: 1.3rem;
+        color: var(--yellow);
+        letter-spacing: 0.05em;
       }
-      .nav-links {
-        display: flex;
-        gap: 2rem;
-        list-style: none;
-      }
-      .nav-links a {
-        text-decoration: none;
-        color: var(--gray-400);
-        font-size: 0.875rem;
-        font-weight: 500;
-        transition: color 0.2s;
-      }
-      .nav-links a:hover {
-        color: #fff;
-      }
-      .nav-cta {
+      .nav-github {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1.25rem;
-        border-radius: 8px;
-        background: var(--red-700);
+        gap: 0.4rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 6px;
+        background: var(--red);
         color: #fff;
-        font-size: 0.875rem;
-        font-weight: 600;
+        font-family: var(--font-title);
+        font-size: 0.95rem;
+        letter-spacing: 0.05em;
         text-decoration: none;
-        transition: background 0.2s;
+        border: 2px solid var(--red-dark);
+        transition: transform 0.15s;
       }
-      .nav-cta:hover {
-        background: var(--red-600);
+      .nav-github:hover {
+        transform: scale(1.05);
       }
 
       /* ---- HERO ---- */
@@ -188,527 +174,329 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 7rem 2rem 5rem;
-        background:
-          radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220, 38, 38, 0.12) 0%, transparent 60%),
-          var(--gray-950);
+        padding: 5rem 1.5rem 3rem;
         text-align: center;
         position: relative;
-        overflow: hidden;
-      }
-      .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='g' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M60 0H0v60' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.04'/%3E%3C/pattern%3E%3C/defs%3E%3Crect fill='url(%23g)' width='60' height='60'/%3E%3C/svg%3E");
+        background:
+          radial-gradient(ellipse 70% 50% at 50% 30%, rgba(225, 29, 72, 0.18) 0%, transparent 60%),
+          var(--black);
       }
       .hero-content {
         position: relative;
         z-index: 1;
-        max-width: 800px;
+        max-width: 640px;
       }
       .hero-mascot {
-        width: 140px;
-        height: 140px;
+        width: 200px;
+        height: 200px;
         object-fit: contain;
-        margin-bottom: 2rem;
-        filter: drop-shadow(0 0 40px rgba(220, 38, 38, 0.3));
-        animation: float 4s ease-in-out infinite;
+        margin-bottom: 1.5rem;
+        filter: drop-shadow(0 0 40px rgba(225, 29, 72, 0.5));
+        animation: bounce 2.5s ease-in-out infinite;
       }
-      @keyframes float {
+      @keyframes bounce {
         0%,
         100% {
-          transform: translateY(0);
+          transform: translateY(0) rotate(-1deg);
         }
         50% {
-          transform: translateY(-12px);
+          transform: translateY(-14px) rotate(1deg);
         }
       }
       .hero h1 {
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        font-weight: 800;
+        font-family: var(--font-title);
+        font-size: clamp(2.8rem, 8vw, 4.5rem);
         color: #fff;
-        letter-spacing: -0.03em;
+        letter-spacing: 0.04em;
         line-height: 1.1;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.75rem;
+        text-shadow:
+          3px 3px 0 var(--red-dark),
+          6px 6px 0 rgba(0, 0, 0, 0.3);
       }
       .hero h1 .accent {
-        color: var(--red-600);
+        color: var(--yellow);
       }
-      .hero p {
-        font-size: 1.25rem;
-        color: var(--gray-400);
-        max-width: 600px;
-        margin: 0 auto 2.5rem;
-        line-height: 1.6;
+      .hero .tagline {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #bbb;
+        margin-bottom: 0.5rem;
+      }
+      .hero .why-name {
+        font-size: 0.95rem;
+        color: #888;
+        margin-bottom: 2rem;
+        font-style: italic;
+      }
+      .install-bar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.7rem 1.4rem;
+        margin-bottom: 1.5rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 2px solid var(--yellow-dark);
+        border-radius: 10px;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        color: var(--yellow);
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          transform 0.15s;
+      }
+      .install-bar:hover {
+        transform: scale(1.03);
+        border-color: var(--yellow);
+      }
+      .install-bar .dollar {
+        color: var(--red);
+        user-select: none;
+      }
+      .install-bar .copy-hint {
+        color: #666;
+        font-size: 0.65rem;
+        font-family: var(--font-comic);
       }
       .hero-actions {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         justify-content: center;
         flex-wrap: wrap;
       }
       .btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.875rem 2rem;
-        border-radius: 10px;
-        font-size: 1rem;
-        font-weight: 600;
+        gap: 0.4rem;
+        padding: 0.7rem 1.6rem;
+        border-radius: 8px;
+        font-family: var(--font-title);
+        font-size: 1.05rem;
+        letter-spacing: 0.05em;
         text-decoration: none;
-        transition: all 0.2s;
+        transition: transform 0.15s;
+        border: 2px solid;
         cursor: pointer;
-        border: none;
+      }
+      .btn:hover {
+        transform: scale(1.05);
       }
       .btn-primary {
-        background: var(--red-700);
+        background: var(--red);
         color: #fff;
-        box-shadow:
-          0 0 0 0 rgba(220, 38, 38, 0),
-          0 4px 16px rgba(0, 0, 0, 0.3);
-      }
-      .btn-primary:hover {
-        background: var(--red-600);
-        box-shadow:
-          0 0 24px rgba(220, 38, 38, 0.3),
-          0 4px 16px rgba(0, 0, 0, 0.3);
-        transform: translateY(-1px);
+        border-color: var(--red-dark);
       }
       .btn-secondary {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--gray-200);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.16);
-        transform: translateY(-1px);
-      }
-
-      /* ---- INSTALL BANNER ---- */
-      .install-bar {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.5rem;
-        margin-bottom: 2rem;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        font-family: var(--font-mono);
-        font-size: 0.95rem;
-        color: var(--gray-300);
-        cursor: pointer;
-        transition: border-color 0.2s;
-      }
-      .install-bar:hover {
-        border-color: rgba(220, 38, 38, 0.4);
-      }
-      .install-bar .dollar {
-        color: var(--red-600);
-        user-select: none;
-      }
-      .install-bar .copy-hint {
-        color: var(--gray-600);
-        font-size: 0.75rem;
-        font-family: var(--font-sans);
+        background: transparent;
+        color: var(--yellow);
+        border-color: var(--yellow-dark);
       }
 
       /* ---- SECTIONS ---- */
       section {
-        padding: 6rem 2rem;
+        padding: 4rem 1.5rem;
+        position: relative;
+        z-index: 1;
       }
       .container {
-        max-width: 1200px;
+        max-width: 700px;
         margin: 0 auto;
       }
-      .section-label {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--red-600);
-        margin-bottom: 0.75rem;
+
+      /* ---- HOW IT WORKS (comic panels) ---- */
+      .comic-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      .panel {
+        background: rgba(255, 255, 255, 0.04);
+        border: 3px solid var(--red);
+        border-radius: 12px;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        position: relative;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+      }
+      .panel-num {
+        font-family: var(--font-title);
+        font-size: 2.5rem;
+        color: var(--red);
+        line-height: 1;
+      }
+      .panel-label {
+        font-family: var(--font-title);
+        font-size: 1.15rem;
+        color: var(--yellow);
+        letter-spacing: 0.03em;
+        margin-top: 0.4rem;
+      }
+      .panel-desc {
+        font-size: 0.85rem;
+        color: #999;
+        margin-top: 0.3rem;
+      }
+      .loop-note {
+        text-align: center;
+        font-family: var(--font-title);
+        font-size: 1rem;
+        color: #666;
+        letter-spacing: 0.05em;
+      }
+
+      /* ---- USAGE ---- */
+      #usage {
+        border-top: 4px solid var(--red);
+        background: linear-gradient(180deg, rgba(225, 29, 72, 0.06) 0%, transparent 100%);
       }
       .section-title {
-        font-size: clamp(1.75rem, 4vw, 2.5rem);
-        font-weight: 800;
-        color: #fff;
-        letter-spacing: -0.02em;
-        margin-bottom: 1rem;
-      }
-      .section-subtitle {
-        font-size: 1.1rem;
-        color: var(--gray-400);
-        max-width: 600px;
-        margin-bottom: 3rem;
-      }
-
-      /* ---- FEATURES ---- */
-      #features {
-        background: var(--gray-950);
-      }
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.5rem;
-      }
-      .feature-card {
-        padding: 2rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        transition: all 0.3s;
-      }
-      .feature-card:hover {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(220, 38, 38, 0.2);
-        transform: translateY(-2px);
-      }
-      .feature-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(220, 38, 38, 0.1);
-        color: var(--red-600);
-        font-size: 1.3rem;
-        margin-bottom: 1.25rem;
-      }
-      .feature-card h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.5rem;
-      }
-      .feature-card p {
-        font-size: 0.925rem;
-        color: var(--gray-400);
-        line-height: 1.65;
-      }
-
-      /* ---- HOW IT WORKS ---- */
-      #how-it-works {
-        background: linear-gradient(180deg, var(--gray-950) 0%, rgba(15, 15, 18, 1) 100%);
-      }
-      .steps {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 2rem;
-        counter-reset: step;
-      }
-      .step {
-        position: relative;
-        padding: 2rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        counter-increment: step;
-      }
-      .step::before {
-        content: counter(step);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--red-700);
-        color: #fff;
-        font-size: 0.875rem;
-        font-weight: 700;
-        margin-bottom: 1.25rem;
-      }
-      .step h3 {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.5rem;
-      }
-      .step p {
-        font-size: 0.9rem;
-        color: var(--gray-400);
-      }
-
-      /* ---- CODE BLOCKS ---- */
-      #quick-start {
-        background: var(--gray-950);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
-      }
-      .code-section {
-        margin-bottom: 2.5rem;
-      }
-      .code-section h3 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--gray-200);
-        margin-bottom: 0.75rem;
+        font-family: var(--font-title);
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+        color: var(--yellow);
+        letter-spacing: 0.04em;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
       }
       pre {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.5);
+        border: 3px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 1.25rem 1.5rem;
         overflow-x: auto;
         font-family: var(--font-mono);
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         line-height: 1.8;
-        color: var(--gray-300);
-      }
-      pre code {
-        background: none;
-        padding: 0;
-      }
-      code {
-        font-family: var(--font-mono);
-        font-size: 0.85em;
-        background: rgba(255, 255, 255, 0.06);
-        padding: 0.15em 0.4em;
-        border-radius: 4px;
+        color: #ccc;
+        margin-bottom: 1.25rem;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
       }
       .code-comment {
-        color: var(--gray-600);
-      }
-      .code-keyword {
-        color: var(--red-600);
-      }
-      .code-string {
-        color: #34d399;
+        color: #555;
       }
       .code-flag {
         color: #60a5fa;
       }
+      .code-string {
+        color: #34d399;
+      }
 
-      /* ---- CONFIG ---- */
-      #configuration {
-        background: rgba(15, 15, 18, 1);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
-      }
-      .config-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-        gap: 2rem;
-      }
-      .config-block h3 {
-        font-size: 1.05rem;
+      .config-note {
+        font-size: 0.9rem;
+        color: #777;
+        margin-bottom: 1.25rem;
         font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
       }
 
-      /* ---- CLI REF ---- */
-      #cli {
-        background: var(--gray-950);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
-      }
-      .cli-table {
+      /* ---- FLAGS TABLE ---- */
+      .flags-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        margin-top: 1rem;
       }
-      .cli-table th {
+      .flags-table th {
+        font-family: var(--font-title);
+        color: var(--yellow);
         text-align: left;
-        padding: 0.75rem 1rem;
-        color: var(--gray-400);
-        font-weight: 600;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 2px solid var(--red);
+        letter-spacing: 0.04em;
       }
-      .cli-table td {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      .flags-table td {
+        padding: 0.4rem 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: #aaa;
       }
-      .cli-table td:first-child {
+      .flags-table td:first-child {
         font-family: var(--font-mono);
-        color: var(--red-600);
-        font-size: 0.85rem;
+        color: var(--yellow);
         white-space: nowrap;
-      }
-      .cli-table td:nth-child(2) {
-        color: var(--gray-400);
-      }
-      .cli-table td:last-child {
-        font-family: var(--font-mono);
-        color: var(--gray-500);
-        font-size: 0.85rem;
-      }
-      .cli-table tr:hover {
-        background: rgba(255, 255, 255, 0.02);
-      }
-
-      /* ---- USE CASES ---- */
-      #use-cases {
-        background: rgba(15, 15, 18, 1);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
-      }
-      .use-cases-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 1.25rem;
-      }
-      .use-case {
-        padding: 1.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        transition: border-color 0.2s;
-      }
-      .use-case:hover {
-        border-color: rgba(220, 38, 38, 0.2);
-      }
-      .use-case h3 {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.4rem;
-      }
-      .use-case p {
-        font-size: 0.875rem;
-        color: var(--gray-500);
+        font-size: 0.8rem;
       }
 
       /* ---- FOOTER ---- */
       footer {
-        padding: 3rem 2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 1.5rem;
+        border-top: 4px solid var(--red);
         text-align: center;
       }
       .footer-inner {
-        max-width: 1200px;
+        max-width: 700px;
         margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem;
       }
       .footer-brand {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
       }
       .footer-brand img {
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
         object-fit: contain;
       }
       .footer-brand span {
-        font-weight: 700;
-        color: var(--gray-400);
+        font-family: var(--font-title);
+        color: var(--yellow);
         font-size: 0.9rem;
       }
       .footer-links {
         display: flex;
-        gap: 1.5rem;
+        gap: 1.25rem;
         list-style: none;
       }
       .footer-links a {
-        color: var(--gray-500);
+        color: #666;
         text-decoration: none;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 700;
         transition: color 0.2s;
       }
       .footer-links a:hover {
-        color: #fff;
+        color: var(--yellow);
       }
       .footer-copy {
-        color: var(--gray-600);
-        font-size: 0.8rem;
+        color: #444;
+        font-size: 0.75rem;
         width: 100%;
-        margin-top: 1rem;
+        margin-top: 0.25rem;
       }
 
       /* ---- RESPONSIVE ---- */
-      @media (max-width: 768px) {
-        .nav-links {
-          display: none;
-        }
-        .hero {
-          padding: 6rem 1.5rem 3rem;
-        }
+      @media (max-width: 600px) {
         .hero-mascot {
-          width: 100px;
-          height: 100px;
+          width: 140px;
+          height: 140px;
         }
-        section {
-          padding: 4rem 1.5rem;
-        }
-        .features-grid,
-        .steps,
-        .config-grid,
-        .use-cases-grid {
+        .comic-strip {
           grid-template-columns: 1fr;
         }
-        .cli-table {
-          font-size: 0.8rem;
-        }
-        .cli-table td,
-        .cli-table th {
-          padding: 0.5rem 0.6rem;
+        section {
+          padding: 3rem 1.25rem;
         }
         .footer-inner {
           justify-content: center;
-          text-align: center;
         }
       }
-
-      /* ---- SCROLLBAR ---- */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: var(--gray-950);
-      }
-      ::-webkit-scrollbar-thumb {
-        background: var(--gray-800);
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: var(--gray-700);
-      }
     </style>
-
-    <!-- Preconnect for fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
-    <!-- Navigation -->
+    <!-- Nav -->
     <nav>
       <div class="nav-inner">
         <a href="#" class="nav-brand">
-          <img
-            src="https://www.clipartmax.com/png/middle/50-509081_cute-deadpool-chibi-png-deadpool-chibi-drawing.png"
-            alt="Deadpool Runner mascot"
-            width="36"
-            height="36"
-          />
+          <img src="deadpool-mascot.png" alt="Deadpool Runner" width="32" height="32" />
           <span>deadpool-runner</span>
         </a>
-        <ul class="nav-links">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#quick-start">Quick Start</a></li>
-          <li><a href="#configuration">Config</a></li>
-          <li><a href="#cli">CLI</a></li>
-        </ul>
         <a
           href="https://github.com/arcqdev/deadpool-runner"
-          class="nav-cta"
+          class="nav-github"
           target="_blank"
           rel="noopener"
         >
@@ -726,343 +514,131 @@
     <section class="hero">
       <div class="hero-content">
         <img
-          src="https://www.clipartmax.com/png/middle/50-509081_cute-deadpool-chibi-png-deadpool-chibi-drawing.png"
-          alt="Deadpool Runner chibi mascot"
+          src="deadpool-mascot.png"
+          alt="Deadpool Runner mascot"
           class="hero-mascot"
-          width="140"
-          height="140"
+          width="200"
+          height="200"
         />
+        <h1>Self-Healing <span class="accent">CLI</span></h1>
+        <p class="tagline">Run a command. If it fails, AI fixes your code and reruns it. Done.</p>
+        <p class="why-name">
+          Named after Deadpool because it regenerates — your scripts heal themselves.
+        </p>
         <div
           class="install-bar"
-          onclick="navigator.clipboard.writeText('npm install -g @arcqdev/deadpool-runner')"
+          onclick="navigator.clipboard.writeText('npm i -g @arcqdev/deadpool-runner')"
           title="Click to copy"
         >
           <span class="dollar">$</span>
-          <span>npm install -g @arcqdev/deadpool-runner</span>
+          <span>npm i -g @arcqdev/deadpool-runner</span>
           <span class="copy-hint">click to copy</span>
         </div>
-        <h1>Your scripts <span class="accent">regenerate</span>.</h1>
-        <p>
-          Deadpool Runner wraps any command, watches it fail, then sends an AI to fix your code and
-          retry &mdash; automatically. Because scripts shouldn't stay dead.
-        </p>
         <div class="hero-actions">
-          <a href="#quick-start" class="btn btn-primary">Get Started</a>
+          <a href="#usage" class="btn btn-primary">Usage</a>
           <a
             href="https://github.com/arcqdev/deadpool-runner"
             class="btn btn-secondary"
             target="_blank"
             rel="noopener"
+            >GitHub</a
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <path
-                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
-              />
-            </svg>
-            View Source
-          </a>
+          <a
+            href="https://www.npmjs.com/package/@arcqdev/deadpool-runner"
+            class="btn btn-secondary"
+            target="_blank"
+            rel="noopener"
+            >npm</a
+          >
         </div>
       </div>
     </section>
 
-    <!-- Features -->
-    <section id="features">
+    <!-- How it works — comic panels -->
+    <section>
       <div class="container">
-        <span class="section-label">Features</span>
-        <h2 class="section-title">Everything you need to stop babysitting builds.</h2>
-        <p class="section-subtitle">Run it, forget it, and let the AI handle the rest.</p>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">&#x1F504;</div>
-            <h3>Automatic Retry Loop</h3>
-            <p>
-              When your command exits non-zero, Deadpool Runner captures the error, sends it to an
-              AI fixer, applies the patch, and retries &mdash; up to your configured limit.
-            </p>
+        <div class="comic-strip">
+          <div class="panel">
+            <div class="panel-num">1</div>
+            <div class="panel-label">Run</div>
+            <div class="panel-desc">You run a command</div>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#x1F916;</div>
-            <h3>AI-Powered Fixes</h3>
-            <p>
-              Ships with a built-in Codex client that understands your failure context, reads the
-              repo, and writes targeted fixes. Pluggable architecture lets you swap in other ACP
-              clients.
-            </p>
+          <div class="panel">
+            <div class="panel-num">2</div>
+            <div class="panel-label">Break</div>
+            <div class="panel-desc">It fails? AI fixes it</div>
           </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#x1F4E1;</div>
-            <h3>Transparent Passthrough</h3>
-            <p>
-              Stdout and stderr stream to your terminal in real time. You see exactly what your
-              command outputs while Deadpool captures it for analysis behind the scenes.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#x2699;&#xFE0F;</div>
-            <h3>Flexible Configuration</h3>
-            <p>
-              Per-repo config files, user-level defaults at <code>~/.config/deadpool-runner/</code>,
-              and CLI overrides. TypeScript config files with full type safety.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#x1F6E1;&#xFE0F;</div>
-            <h3>Sandboxed Execution</h3>
-            <p>
-              Three sandbox modes &mdash; read-only, workspace-write, and full-access &mdash; so you
-              control exactly how much power the AI fixer gets over your repo.
-            </p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#x1F4DD;</div>
-            <h3>Debug Artifacts</h3>
-            <p>
-              Every fix attempt saves <code>solution.md</code>, error logs, and input context to
-              <code>~/.deadpool-runner/runs/</code> so you can review what happened and why.
-            </p>
+          <div class="panel">
+            <div class="panel-num">3</div>
+            <div class="panel-label">Heal</div>
+            <div class="panel-desc">Reruns automatically</div>
           </div>
         </div>
+        <p class="loop-note">Repeats until it passes or hits the retry limit.</p>
       </div>
     </section>
 
-    <!-- How It Works -->
-    <section id="how-it-works">
+    <!-- Usage -->
+    <section id="usage">
       <div class="container">
-        <span class="section-label">How It Works</span>
-        <h2 class="section-title">Four steps to self-healing scripts.</h2>
-        <p class="section-subtitle">
-          No configuration wizardry. Point it at a command and let it do its thing.
-        </p>
-        <div class="steps">
-          <div class="step">
-            <h3>Run your command</h3>
-            <p>
-              Deadpool Runner executes your script, streaming output to the terminal while capturing
-              stdout and stderr for analysis.
-            </p>
-          </div>
-          <div class="step">
-            <h3>Detect failure</h3>
-            <p>
-              When the command exits with a non-zero code, the runner packages the error output,
-              attempt count, and repo context into a structured failure report.
-            </p>
-          </div>
-          <div class="step">
-            <h3>AI fixes the code</h3>
-            <p>
-              The failure context is sent to an ACP client (Codex by default) which reads your repo,
-              diagnoses the issue, and applies a fix directly to your source files.
-            </p>
-          </div>
-          <div class="step">
-            <h3>Retry automatically</h3>
-            <p>
-              The fixed command runs again. This loop continues until the command succeeds or the
-              retry limit is reached. All fix attempts are saved as debug artifacts.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+        <h2 class="section-title">Usage</h2>
 
-    <!-- Quick Start -->
-    <section id="quick-start">
-      <div class="container">
-        <span class="section-label">Quick Start</span>
-        <h2 class="section-title">Up and running in under a minute.</h2>
-        <p class="section-subtitle">Install globally, then point it at any failing command.</p>
+        <pre><code><span class="code-comment"># install</span>
+npm i -g @arcqdev/deadpool-runner
 
-        <div class="code-section">
-          <h3>Install</h3>
-          <pre><code><span class="code-comment"># Install globally</span>
-npm install -g @arcqdev/deadpool-runner
-
-<span class="code-comment"># Or run directly with npx</span>
-npx @arcqdev/deadpool-runner <span class="code-flag">--</span> npm test</code></pre>
-        </div>
-
-        <div class="code-section">
-          <h3>Basic Usage</h3>
-          <pre><code><span class="code-comment"># Run with default config (reads deadpool-runner.config.ts)</span>
-dpr
-
-<span class="code-comment"># Pass a command directly</span>
+<span class="code-comment"># run a command (auto-fixes + reruns on failure)</span>
 dpr <span class="code-flag">--</span> npm test
 
-<span class="code-comment"># Set retry count and add context</span>
-dpr <span class="code-flag">--retries</span> <span class="code-string">3</span> <span class="code-flag">--prompt</span> <span class="code-string">"This is a React app with Jest tests"</span> <span class="code-flag">--</span> pnpm test
+<span class="code-comment"># set retries and give context</span>
+dpr <span class="code-flag">--retries</span> <span class="code-string">3</span> <span class="code-flag">--prompt</span> <span class="code-string">"React app, Jest tests"</span> <span class="code-flag">--</span> npm test
 
-<span class="code-comment"># Verbose output with custom sandbox</span>
-dpr <span class="code-flag">-v</span> <span class="code-flag">--sandbox</span> <span class="code-string">danger-full-access</span> <span class="code-flag">--</span> pnpm build</code></pre>
-        </div>
+<span class="code-comment"># or just use a config file</span>
+dpr</code></pre>
 
-        <div class="code-section">
-          <h3>Use as a Library</h3>
-          <pre><code><span class="code-keyword">import</span> { createRunner, loadConfig } <span class="code-keyword">from</span> <span class="code-string">"@arcqdev/deadpool-runner"</span>;
-
-<span class="code-keyword">const</span> config = <span class="code-keyword">await</span> loadConfig(process.cwd());
-<span class="code-keyword">const</span> runner = createRunner();
-<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> runner.run(config);</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Configuration -->
-    <section id="configuration">
-      <div class="container">
-        <span class="section-label">Configuration</span>
-        <h2 class="section-title">Configure once, forget forever.</h2>
-        <p class="section-subtitle">
-          TypeScript config files with full type safety, user-level defaults, and CLI overrides.
+        <p class="config-note">
+          Optional: drop a deadpool-runner.config.ts in your repo for defaults.
         </p>
 
-        <div class="config-grid">
-          <div class="config-block">
-            <h3>&#x1F4C4; Project Config</h3>
-            <pre><code><span class="code-comment">// deadpool-runner.config.ts</span>
-<span class="code-keyword">import</span> { defineConfig } <span class="code-keyword">from</span> <span class="code-string">"@arcqdev/deadpool-runner"</span>;
+        <pre><code><span class="code-comment">// deadpool-runner.config.ts</span>
+<span class="code-flag">import type</span> { DeadpoolRunnerConfig } <span class="code-flag">from</span> <span class="code-string">"@arcqdev/deadpool-runner"</span>;
 
-<span class="code-keyword">export default</span> defineConfig({
-  command: <span class="code-string">"pnpm test"</span>,
+<span class="code-flag">export default</span> {
+  command: <span class="code-string">"npm test"</span>,
   retries: <span class="code-string">5</span>,
-  initialPrompt: <span class="code-string">"React 19 app, Vitest tests"</span>,
-  maxOutputChars: <span class="code-string">12000</span>,
+  initialPrompt: <span class="code-string">"Fix root causes, not symptoms."</span>,
   acpClient: {
     name: <span class="code-string">"codex"</span>,
     model: <span class="code-string">"gpt-5.4"</span>,
     fullAuto: <span class="code-string">true</span>,
   },
-});</code></pre>
-          </div>
-          <div class="config-block">
-            <h3>&#x1F310; User Defaults</h3>
-            <pre><code><span class="code-comment">// ~/.config/deadpool-runner/config.json</span>
-{
-  <span class="code-string">"retries"</span>: <span class="code-string">5</span>,
-  <span class="code-string">"maxOutputChars"</span>: <span class="code-string">12000</span>,
-  <span class="code-string">"acpClient"</span>: {
-    <span class="code-string">"name"</span>: <span class="code-string">"codex"</span>,
-    <span class="code-string">"model"</span>: <span class="code-string">"gpt-5.4"</span>,
-    <span class="code-string">"fullAuto"</span>: <span class="code-string">true</span>,
-    <span class="code-string">"color"</span>: <span class="code-string">"never"</span>
-  }
-}</code></pre>
-          </div>
-        </div>
-      </div>
-    </section>
+} satisfies DeadpoolRunnerConfig;</code></pre>
 
-    <!-- CLI Reference -->
-    <section id="cli">
-      <div class="container">
-        <span class="section-label">CLI Reference</span>
-        <h2 class="section-title">Every flag at a glance.</h2>
-        <p class="section-subtitle">All options can also be set via config files.</p>
-
-        <div style="overflow-x: auto">
-          <table class="cli-table">
-            <thead>
-              <tr>
-                <th>Flag</th>
-                <th>Description</th>
-                <th>Default</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>--config &lt;path&gt;</td>
-                <td>Path to config file</td>
-                <td>auto-detect</td>
-              </tr>
-              <tr>
-                <td>--cwd, --repo &lt;path&gt;</td>
-                <td>Working directory / target repo</td>
-                <td>cwd</td>
-              </tr>
-              <tr>
-                <td>--client &lt;name&gt;</td>
-                <td>ACP client to use</td>
-                <td>codex</td>
-              </tr>
-              <tr>
-                <td>--retries &lt;n&gt;</td>
-                <td>Max retry attempts after failure</td>
-                <td>5</td>
-              </tr>
-              <tr>
-                <td>--max-output-chars &lt;n&gt;</td>
-                <td>Truncate captured output</td>
-                <td>12000</td>
-              </tr>
-              <tr>
-                <td>--prompt &lt;text&gt;</td>
-                <td>Seed prompt / context for the fixer</td>
-                <td>&mdash;</td>
-              </tr>
-              <tr>
-                <td>--model &lt;name&gt;</td>
-                <td>Override model used by ACP client</td>
-                <td>gpt-5.4</td>
-              </tr>
-              <tr>
-                <td>--sandbox &lt;mode&gt;</td>
-                <td>read-only | workspace-write | danger-full-access</td>
-                <td>workspace-write</td>
-              </tr>
-              <tr>
-                <td>--color &lt;mode&gt;</td>
-                <td>Color output mode</td>
-                <td>auto</td>
-              </tr>
-              <tr>
-                <td>--verbose, -v</td>
-                <td>Show detailed ACP client logs</td>
-                <td>false</td>
-              </tr>
-              <tr>
-                <td>--help, -h</td>
-                <td>Show help</td>
-                <td>&mdash;</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Use Cases -->
-    <section id="use-cases">
-      <div class="container">
-        <span class="section-label">Use Cases</span>
-        <h2 class="section-title">Where Deadpool Runner shines.</h2>
-        <p class="section-subtitle">Any script that can fail can be auto-healed.</p>
-        <div class="use-cases-grid">
-          <div class="use-case">
-            <h3>CI/CD Pipelines</h3>
-            <p>Self-healing test and build pipelines that fix flaky failures automatically.</p>
-          </div>
-          <div class="use-case">
-            <h3>Local Development</h3>
-            <p>Auto-fix breaking changes while you iterate without leaving your flow state.</p>
-          </div>
-          <div class="use-case">
-            <h3>Dependency Updates</h3>
-            <p>Run your tests after bumping packages and let the AI resolve breaking changes.</p>
-          </div>
-          <div class="use-case">
-            <h3>Lint &amp; Format</h3>
-            <p>Automatically fix linter and formatter violations that block your commits.</p>
-          </div>
-          <div class="use-case">
-            <h3>Build Recovery</h3>
-            <p>Recover from TypeScript errors, missing imports, and config mismatches.</p>
-          </div>
-          <div class="use-case">
-            <h3>Migration Scripts</h3>
-            <p>Run database or schema migrations and auto-fix generated code when they break.</p>
-          </div>
-        </div>
+        <table class="flags-table">
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>--retries &lt;n&gt;</td>
+              <td>Max fix attempts (default: 5)</td>
+            </tr>
+            <tr>
+              <td>--prompt &lt;text&gt;</td>
+              <td>Context for the AI fixer</td>
+            </tr>
+            <tr>
+              <td>--model &lt;name&gt;</td>
+              <td>Model override</td>
+            </tr>
+            <tr>
+              <td>--verbose, -v</td>
+              <td>Show AI client logs</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -1070,12 +646,7 @@ dpr <span class="code-flag">-v</span> <span class="code-flag">--sandbox</span> <
     <footer>
       <div class="footer-inner">
         <div class="footer-brand">
-          <img
-            src="https://www.clipartmax.com/png/middle/50-509081_cute-deadpool-chibi-png-deadpool-chibi-drawing.png"
-            alt="Deadpool Runner"
-            width="28"
-            height="28"
-          />
+          <img src="deadpool-mascot.png" alt="Deadpool Runner" width="20" height="20" />
           <span>deadpool-runner</span>
         </div>
         <ul class="footer-links">
@@ -1094,27 +665,18 @@ dpr <span class="code-flag">-v</span> <span class="code-flag">--sandbox</span> <
           </li>
           <li>
             <a
-              href="https://github.com/arcqdev/deadpool-runner/issues"
-              target="_blank"
-              rel="noopener"
-              >Issues</a
-            >
-          </li>
-          <li>
-            <a
               href="https://github.com/arcqdev/deadpool-runner/blob/main/LICENSE"
               target="_blank"
               rel="noopener"
-              >MIT License</a
+              >MIT</a
             >
           </li>
         </ul>
-        <p class="footer-copy">&copy; 2025 arcqdev &middot; Made with maximum effort.</p>
+        <p class="footer-copy">&copy; 2025 arcqdev &middot; Maximum effort.</p>
       </div>
     </footer>
 
     <script>
-      // Copy install command on click
       document.querySelector(".install-bar")?.addEventListener("click", function () {
         const hint = this.querySelector(".copy-hint");
         if (hint) {

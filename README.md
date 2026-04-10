@@ -1,211 +1,73 @@
 # @arcqdev/deadpool-runner
 
-`@arcqdev/deadpool-runner` is a small Node utility that wraps any script, streams its output through unchanged, and when the script fails it asks an ACP-backed fixer to repair the repo before retrying.
+<p align="center">
+  <img src="docs/deadpool-mascot.png" alt="Deadpool Runner" width="200" />
+</p>
 
-Today it ships with a built-in Codex client. The runner is structured around a client interface so additional ACP clients can be added without changing the retry engine.
-
-Pull requests are welcome.
-
-## What It Does
-
-- Runs any command from the current repo, or from explicit CLI arguments
-- Mirrors `stdout` and `stderr` to your terminal while also capturing them for failure analysis
-- On non-zero exit, sends the failure context to an ACP client
-- Retries the command after the fixer runs, up to a configurable maximum
-- Accepts repo-specific context via `deadpool-runner.config.ts` and/or CLI flags
+<p align="center">
+  <strong>Self-healing CLI.</strong><br/>
+  Run a command. If it fails, AI fixes your code and reruns it. Done.<br/>
+  <em>Named after Deadpool because it regenerates — your scripts heal themselves.</em>
+</p>
 
 ## Install
 
-From npm:
+```bash
+npm i -g @arcqdev/deadpool-runner
+```
+
+## Usage
 
 ```bash
-npm install -g @arcqdev/deadpool-runner
-```
+# run a command (auto-fixes + reruns on failure)
+dpr -- npm test
 
-Or run it without installing globally:
+# set retries and give context
+dpr --retries 3 --prompt "React app, Jest tests" -- npm test
 
-```bash
-npx @arcqdev/deadpool-runner --help
-```
-
-For local development in this repo:
-
-```bash
-vp install
-vp run build
-vp link . -- --global
-```
-
-That exposes the default binary as `dpr`.
-
-## Quick Start
-
-Create a `deadpool-runner.config.ts` in the repo you want to protect:
-
-```ts
-import type { DeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
-
-const config: DeadpoolRunnerConfig = {
-  command: "vp test",
-  retries: 5,
-  initialPrompt: `
-This repo uses Vite+.
-Use vp commands instead of npm, pnpm, or yarn directly.
-Fix the root cause instead of suppressing errors.
-`.trim(),
-  acpClient: {
-    name: "codex",
-    model: "gpt-5.4",
-    fullAuto: true,
-  },
-};
-
-export default config;
-```
-
-If you do not have a repo-local config, `dpr` also falls back to:
-
-```text
-~/.config/deadpool-runner/config.json
-```
-
-If that file does not exist yet, `dpr` creates it automatically with a permissive Codex default using `gpt-5.4`.
-
-Then run:
-
-```bash
+# or just use a config file
 dpr
 ```
 
-Or skip the config file and pass the command directly:
+## Config (optional)
 
-```bash
-dpr --retries 2 --prompt "This is a Node CLI package. Keep fixes minimal." -- vp test
-```
-
-Target a different repository explicitly:
-
-```bash
-dpr --repo /path/to/other-repo -- vp test
-```
-
-Target a repo and provide a custom fixer prompt:
-
-```bash
-dpr --repo /path/to/other-repo --prompt "This repo uses pnpm and strict TypeScript. Fix root causes only." -- vp test
-```
-
-Enable verbose ACP client logs during fix attempts:
-
-```bash
-dpr --verbose --prompt "Show your work while fixing." -- vp test
-```
-
-Tune how much of the trailing error output gets sent into the ACP prompt:
-
-```bash
-dpr --max-output-chars 12000 --verbose -- vp test
-```
-
-If Codex is already running inside an external sandbox and its default `workspace-write` sandbox fails to initialize, pass through a different Codex execution mode:
-
-```bash
-dpr --sandbox danger-full-access --dangerously-bypass-approvals-and-sandbox -- vp test
-```
-
-## CLI
-
-```bash
-dpr [options] -- <command> [args...]
-```
-
-Options:
-
-- `--config <path>`: explicit config file path
-- `--cwd <path>`: working directory for the wrapped command and ACP client
-- `--repo <path>`: alias for `--cwd`, useful when you want to point at another repository
-- `--client <name>`: ACP client name, currently `codex`
-- `--retries <n>`: maximum fixer attempts after the initial failure
-- `--max-output-chars <n>`: maximum trailing error characters sent to the ACP client
-- `--prompt <text>`: seed prompt with repo context for the fixer
-- `--verbose`: stream detailed ACP client logs, with ACP output prefixed as `[acp-client]`
-- `--model <name>`: model override for the built-in Codex client
-- `--color <mode>`: `auto`, `always`, or `never` for `codex exec`
-- `--sandbox <mode>`: `read-only`, `workspace-write`, or `danger-full-access` for `codex exec`
-- `--dangerously-bypass-approvals-and-sandbox`: run `codex exec` without approvals or sandboxing
-
-## Config
-
-The runner looks for `deadpool-runner.config.ts`, `deadpool-runner.config.mts`, `deadpool-runner.config.js`, or `deadpool-runner.config.mjs` in the working directory unless `--config` is passed.
+Drop a `deadpool-runner.config.ts` in your repo:
 
 ```ts
 import type { DeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
 
 export default {
-  command: ["vp", "test"],
+  command: "npm test",
   retries: 5,
-  initialPrompt: "The repo uses strict TypeScript and Vite+ commands.",
-  maxOutputChars: 12000,
-  env: {
-    CI: "1",
-  },
+  initialPrompt: "Fix root causes, not symptoms.",
   acpClient: {
     name: "codex",
     model: "gpt-5.4",
     fullAuto: true,
-    sandbox: "danger-full-access",
-    dangerouslyBypassApprovalsAndSandbox: true,
-    color: "never",
-    verbose: true,
   },
 } satisfies DeadpoolRunnerConfig;
 ```
 
-Equivalent user-level default config:
+## CLI Flags
 
-```json
-{
-  "retries": 5,
-  "maxOutputChars": 12000,
-  "acpClient": {
-    "name": "codex",
-    "model": "gpt-5.4",
-    "fullAuto": true,
-    "color": "never"
-  }
-}
-```
+| Flag                   | What it does                                            |
+| ---------------------- | ------------------------------------------------------- |
+| `--retries <n>`        | Max fix attempts (default: 5)                           |
+| `--prompt <text>`      | Context for the AI fixer                                |
+| `--cwd, --repo <path>` | Target a different repo                                 |
+| `--model <name>`       | Model override (default: gpt-5.4)                       |
+| `--sandbox <mode>`     | `read-only`, `workspace-write`, or `danger-full-access` |
+| `--verbose, -v`        | Show AI client logs                                     |
+| `--config <path>`      | Explicit config file path                               |
 
-## Built-In Codex Client
+## How it works
 
-When a command fails, the built-in Codex client runs `codex exec` in the target repo and gives it:
+1. Runs your command
+2. If it fails, AI reads your repo, fixes the code
+3. Reruns — repeats until it passes or hits the retry limit
 
-- The failing command
-- The attempt number and retry budget
-- The seed prompt from config or CLI
-- Captured stdout/stderr, truncated to the configured limit
+That's it. Self-healing scripts.
 
-For each runner invocation, debug artifacts are written under:
+## License
 
-```text
-~/.deadpool-runner/runs/<run-hash>/<run-num>/
-```
-
-That directory includes:
-
-- `solution.md`: where the ACP fixer is instructed to write its solution summary
-- `full-error.md`: the full captured command output for the current failed attempt
-- `input-error.md`: the truncated error payload that was actually sent to the ACP client
-
-By default the client runs with `--full-auto`. You can switch to a custom argument set through `acpClient.extraArgs`.
-
-If Codex is already externally sandboxed and `--full-auto` is too restrictive for that environment, set `acpClient.sandbox` and, if needed, `acpClient.dangerouslyBypassApprovalsAndSandbox`. When `dangerouslyBypassApprovalsAndSandbox` is enabled, deadpool-runner treats it as overriding `--full-auto` and only passes the dangerous flag through to `codex exec`.
-
-## Development
-
-```bash
-vp install
-vp check
-vp test
-vp run build
-```
+MIT
