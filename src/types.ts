@@ -48,6 +48,12 @@ export interface ACPClientConfig {
   executable?: string;
 }
 
+export interface CritiqueConfig {
+  enabled?: boolean;
+  repeatFailureLimit?: number;
+  acpClient?: ACPClientConfig;
+}
+
 export interface DeadpoolRunnerConfig {
   command?: CommandSpec;
   cwd?: string;
@@ -56,10 +62,32 @@ export interface DeadpoolRunnerConfig {
   maxOutputChars?: number;
   env?: Record<string, string | undefined>;
   acpClient?: ACPClientConfig;
+  critique?: CritiqueConfig;
 }
+
+export interface CritiqueContext {
+  cwd: string;
+  command: CommandSpec;
+  previousOutput: string;
+  currentOutput: string;
+  previousAttempt: number;
+  currentAttempt: number;
+  previousRunDirectory: string;
+  currentRunDirectory: string;
+  initialPrompt?: string;
+}
+
+export interface CritiqueResult {
+  sameFailure: boolean;
+  reason: string;
+  rawResponse?: string;
+}
+
+export type CritiqueJudge = (context: CritiqueContext) => Promise<CritiqueResult>;
 
 export interface RunnerDependencies {
   createClient?: (config: DeadpoolRunnerConfig) => ACPClient;
+  createCritiqueJudge?: (config: DeadpoolRunnerConfig) => CritiqueJudge;
   runCommand?: (
     command: CommandSpec,
     options: SpawnOptions & {

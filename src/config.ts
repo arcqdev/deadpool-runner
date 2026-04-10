@@ -4,7 +4,13 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { tsImport } from "tsx/esm/api";
 import { getACPClientFactory } from "./client-registry.js";
-import type { ACPClient, CommandSpec, DeadpoolRunnerConfig } from "./types.js";
+import type {
+  ACPClient,
+  ACPClientConfig,
+  CommandSpec,
+  CritiqueConfig,
+  DeadpoolRunnerConfig,
+} from "./types.js";
 
 const DEFAULT_CONFIG_FILES = [
   "deadpool-runner.config.ts",
@@ -68,6 +74,7 @@ export async function resolveConfig(
       extraArgs: fileConfig.acpClient?.extraArgs,
       executable: fileConfig.acpClient?.executable,
     },
+    critique: resolveCritiqueConfig(fileConfig.critique, fileConfig.acpClient),
     env: fileConfig.env,
     maxOutputChars: args.maxOutputChars ?? fileConfig.maxOutputChars ?? 12000,
   };
@@ -135,6 +142,15 @@ function getDefaultGlobalConfig(): DeadpoolRunnerConfig {
       fullAuto: true,
       color: "never",
     },
+    critique: {
+      enabled: true,
+      repeatFailureLimit: 1,
+      acpClient: {
+        sandbox: "read-only",
+        fullAuto: false,
+        color: "never",
+      },
+    },
   };
 }
 
@@ -158,4 +174,80 @@ function unwrapConfigExport(moduleValue: unknown): DeadpoolRunnerConfig {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function resolveCritiqueConfig(
+  fileCritiqueConfig: CritiqueConfig | undefined,
+  fixerClientConfig: DeadpoolRunnerConfig["acpClient"],
+): CritiqueConfig {
+  const enabledOverride = parseBooleanEnv(process.env.DEADPOOL_RUNNER_DISABLE_CRITIQUE);
+  const repeatFailureLimitOverride = parseIntegerEnv(
+    process.env.DEADPOOL_RUNNER_REPEAT_FAILURE_LIMIT,
+  );
+
+  return {
+    enabled:
+      enabledOverride === undefined ? (fileCritiqueConfig?.enabled ?? true) : !enabledOverride,
+    repeatFailureLimit: repeatFailureLimitOverride ?? fileCritiqueConfig?.repeatFailureLimit ?? 1,
+    acpClient: {
+      name:
+        process.env.DEADPOOL_RUNNER_CRITIQUE_CLIENT ??
+        fileCritiqueConfig?.acpClient?.name ??
+        fixerClientConfig?.name ??
+        "codex",
+      model:
+        process.env.DEADPOOL_RUNNER_CRITIQUE_MODEL ??
+        fileCritiqueConfig?.acpClient?.model ??
+        fixerClientConfig?.model,
+      color:
+        (process.env.DEADPOOL_RUNNER_CRITIQUE_COLOR as ACPClientConfig["color"]) ??
+        fileCritiqueConfig?.acpClient?.color ??
+        fixerClientConfig?.color ??
+        "never",
+      sandbox:
+        (process.env.DEADPOOL_RUNNER_CRITIQUE_SANDBOX as ACPClientConfig["sandbox"]) ??
+        fileCritiqueConfig?.acpClient?.sandbox ??
+        "read-only",
+      dangerouslyBypassApprovalsAndSandbox:
+        parseBooleanEnv(process.env.DEADPOOL_RUNNER_CRITIQUE_BYPASS_SANDBOX) ??
+        fileCritiqueConfig?.acpClient?.dangerouslyBypassApprovalsAndSandbox ??
+        false,
+      verbose: fileCritiqueConfig?.acpClient?.verbose ?? fixerClientConfig?.verbose,
+      fullAuto:
+        parseBooleanEnv(process.env.DEADPOOL_RUNNER_CRITIQUE_FULL_AUTO) ??
+        fileCritiqueConfig?.acpClient?.fullAuto ??
+        false,
+      extraArgs: fileCritiqueConfig?.acpClient?.extraArgs,
+      executable:
+        process.env.DEADPOOL_RUNNER_CRITIQUE_EXECUTABLE ??
+        fileCritiqueConfig?.acpClient?.executable ??
+        fixerClientConfig?.executable,
+    },
+  };
+}
+
+function parseBooleanEnv(value: string | undefined): boolean | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return undefined;
+}
+
+function parseIntegerEnv(value: string | undefined): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : undefined;
 }

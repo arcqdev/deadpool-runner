@@ -49,8 +49,6 @@ export default {
     enabled: true,
     repeatFailureLimit: 1,
     acpClient: {
-      name: "codex",
-      model: "gpt-5.4",
       sandbox: "read-only",
       fullAuto: false,
     },
@@ -77,13 +75,39 @@ Deadpool Runner now keeps the original retry budget and adds a second loop guard
 - `retries` still caps the total number of fixer attempts.
 - `critique.repeatFailureLimit` stops earlier when the same failure keeps happening consecutively.
 - The default repeat-failure limit is `1`, so if the same failure comes back on the very next loop, Deadpool Runner exits instead of spending another repair attempt.
+- Critique defaults to the same ACP client as the main fixer unless you override it.
 - Critique runs are read-only by default and can use their own ACP settings separate from the fixer.
+
+Config keys:
+
+- `critique.enabled`
+- `critique.repeatFailureLimit`
+- `critique.acpClient.name`
+- `critique.acpClient.model`
+- `critique.acpClient.color`
+- `critique.acpClient.sandbox`
+- `critique.acpClient.dangerouslyBypassApprovalsAndSandbox`
+- `critique.acpClient.verbose`
+- `critique.acpClient.fullAuto`
+- `critique.acpClient.extraArgs`
+- `critique.acpClient.executable`
 
 Environment variables:
 
 - `DEADPOOL_RUNNER_REPEAT_FAILURE_LIMIT` overrides `critique.repeatFailureLimit`
 - `DEADPOOL_RUNNER_DISABLE_CRITIQUE=1` disables critique and falls back to retry-budget-only behavior
-- `DEADPOOL_RUNNER_CRITIQUE_CLIENT`, `DEADPOOL_RUNNER_CRITIQUE_MODEL`, `DEADPOOL_RUNNER_CRITIQUE_EXECUTABLE`, `DEADPOOL_RUNNER_CRITIQUE_SANDBOX`, and `DEADPOOL_RUNNER_CRITIQUE_FULL_AUTO` override the critique ACP configuration
+- `DEADPOOL_RUNNER_CRITIQUE_CLIENT` overrides `critique.acpClient.name`
+- `DEADPOOL_RUNNER_CRITIQUE_MODEL` overrides `critique.acpClient.model`
+- `DEADPOOL_RUNNER_CRITIQUE_COLOR` overrides `critique.acpClient.color`
+- `DEADPOOL_RUNNER_CRITIQUE_SANDBOX` overrides `critique.acpClient.sandbox`
+- `DEADPOOL_RUNNER_CRITIQUE_BYPASS_SANDBOX` overrides `critique.acpClient.dangerouslyBypassApprovalsAndSandbox`
+- `DEADPOOL_RUNNER_CRITIQUE_FULL_AUTO` overrides `critique.acpClient.fullAuto`
+- `DEADPOOL_RUNNER_CRITIQUE_EXECUTABLE` overrides `critique.acpClient.executable`
+
+Notes:
+
+- If you do not set `critique.acpClient.name`, the critique inherits `acpClient.name`.
+- Today the built-in critique runner only supports the `codex` ACP protocol path, so using another `name` requires matching support in the runtime.
 
 ## How it works
 

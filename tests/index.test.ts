@@ -1,4 +1,4 @@
-import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { Writable } from "node:stream";
@@ -13,7 +13,7 @@ import {
 } from "../src/index.ts";
 import { runCommand } from "../src/process.ts";
 import { createRunner } from "../src/runner.ts";
-import type { ACPClient, FailureContext, RunResult } from "../src/types.ts";
+import type { ACPClient, CritiqueContext, FailureContext, RunResult } from "../src/types.ts";
 
 const tempDirs: string[] = [];
 
@@ -274,6 +274,9 @@ describe("createRunner", () => {
     const result = await runner.run({
       cwd: process.cwd(),
       command: "vp test",
+      critique: {
+        enabled: false,
+      },
     });
 
     expect(result.code).toBe(1);
@@ -361,10 +364,116 @@ describe("createRunner", () => {
       cwd: process.cwd(),
       command: "vp test",
       retries: 1,
+      critique: {
+        enabled: false,
+      },
     });
 
     expect(result.code).toBe(1);
     expect(fixFailure).toHaveBeenCalledTimes(1);
+  });
+
+  test("stops early when critique flags the same failure twice in a row", async () => {
+    const resultSequence: RunResult[] = [
+      {
+        code: 1,
+        signal: null,
+        stdout: "",
+        stderr: "missing generated file at line 10",
+        combinedOutput: "missing generated file at line 10",
+      },
+      {
+        code: 1,
+        signal: null,
+        stdout: "",
+        stderr: "missing generated file at line 12",
+        combinedOutput: "missing generated file at line 12",
+      },
+    ];
+
+    const fixFailure = vi.fn(async () => ({ summary: "attempted" }));
+    const critique = vi.fn(async (_context: CritiqueContext) => ({
+      sameFailure: true,
+      reason: "Still failing to generate the required file.",
+    }));
+
+    const runner = createRunner({
+      createClient: () =>
+        ({
+          name: "fake",
+          fixFailure,
+        }) satisfies ACPClient,
+      createCritiqueJudge: () => critique,
+      runCommand: vi.fn(async () => resultSequence.shift() ?? resultSequence.at(-1)!),
+    });
+
+    const result = await runner.run({
+      cwd: process.cwd(),
+      command: "vp test",
+      retries: 5,
+      critique: {
+        enabled: true,
+        repeatFailureLimit: 1,
+      },
+    });
+
+    expect(result.code).toBe(1);
+    expect(fixFailure).toHaveBeenCalledTimes(1);
+    expect(critique).toHaveBeenCalledTimes(1);
+  });
+
+  test("records the command inside the run directory for per-run inspection", async () => {
+    const dir = await createTempDir();
+    const previousHome = process.env.HOME;
+    process.env.HOME = dir;
+
+    try {
+      const fixFailure = vi.fn(async () => ({ summary: "attempted" }));
+      const runner = createRunner({
+        createClient: () =>
+          ({
+            name: "fake",
+            fixFailure,
+          }) satisfies ACPClient,
+        createCritiqueJudge: () => async () => ({
+          sameFailure: true,
+          reason: "Same failure.",
+        }),
+        runCommand: vi
+          .fn()
+          .mockResolvedValueOnce({
+            code: 1,
+            signal: null,
+            stdout: "",
+            stderr: "first fail",
+            combinedOutput: "first fail",
+          })
+          .mockResolvedValueOnce({
+            code: 1,
+            signal: null,
+            stdout: "",
+            stderr: "first fail again",
+            combinedOutput: "first fail again",
+          }),
+      });
+
+      await runner.run({
+        cwd: dir,
+        command: [process.execPath, "script-under-test.mjs", "--flag"],
+        retries: 5,
+      });
+
+      const runsRoot = path.join(dir, ".deadpool-runner", "runs");
+      const hashDirectories = await readDirectoryPaths(runsRoot);
+      expect(hashDirectories.length).toBe(1);
+
+      const runDirectories = await readDirectoryPaths(hashDirectories[0]!);
+      const commandFile = await readFile(path.join(runDirectories[0]!, "command.txt"), "utf8");
+
+      expect(commandFile.trim()).toBe(`${process.execPath} script-under-test.mjs --flag`);
+    } finally {
+      process.env.HOME = previousHome;
+    }
   });
 });
 
@@ -390,4 +499,11 @@ async function createTempDir() {
   const dir = await mkdtemp(path.join(os.tmpdir(), "deadpool-runner-"));
   tempDirs.push(dir);
   return dir;
+}
+
+async function readDirectoryPaths(root: string) {
+  return (await readdir(root, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(root, entry.name))
+    .sort();
 }

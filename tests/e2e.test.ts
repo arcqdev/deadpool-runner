@@ -304,6 +304,25 @@ const prompt = await new Promise((resolve) => {
 
 writeFileSync(path.join(cwd, "last-prompt.txt"), String(prompt));
 
+if (String(prompt).includes("You are a safeguard for a self-healing CLI loop.")) {
+  const fence = String.fromCharCode(96).repeat(3);
+  const readBlock = (label) =>
+    String(prompt)
+      .split(label + "\\n" + fence + "text\\n")[1]
+      ?.split("\\n" + fence)[0] ?? "";
+  const previous = readBlock("Previous failure output:");
+  const current = readBlock("Current failure output:");
+  const sameFailure =
+    (previous.includes("BROKEN_AFTER_DELAY") && current.includes("BROKEN_AFTER_DELAY")) ||
+    (previous.includes("BROKEN_STAGE_TWO") && current.includes("BROKEN_STAGE_TWO")) ||
+    (previous.includes("BROKEN_FOREVER") && current.includes("BROKEN_FOREVER"));
+  process.stdout.write(JSON.stringify({
+    sameFailure,
+    reason: sameFailure ? "Same failure marker repeated." : "Failure marker changed.",
+  }));
+  process.exit(0);
+}
+
 const plan = JSON.parse(readFileSync(path.join(cwd, "fix-plan.json"), "utf8"));
 const statePath = path.join(cwd, "fix-state.json");
 const state = JSON.parse(readFileSync(statePath, "utf8"));
