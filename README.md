@@ -7,7 +7,8 @@
 <p align="center">
   <strong>Self-healing CLI.</strong><br/>
   Run a command. Let AI automatically fix and retry when it fails. Done.<br/>
-  <em>Deadpool regenerates. So should your scripts...up to a certain limit.</em>
+  <em>Deadpool regenerates. So should your scripts...up to a certain limit.</em><br/><br/>
+  Part of <a href="https://foldablestack.com/dev/">Run Suite</a> · <a href="https://arcqdev.github.io/deadpool-runner/">Docs</a>
 </p>
 
 ## Install
