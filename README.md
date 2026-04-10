@@ -6,8 +6,8 @@
 
 <p align="center">
   <strong>Self-healing CLI.</strong><br/>
-  Run a command. If it fails, AI fixes your code and reruns it. Done.<br/>
-  <em>Named after Deadpool because it regenerates — your scripts heal themselves.</em>
+  Run a command. Let AI automatically fix and retry when it fails. Done.<br/>
+  <em>Deadpool regenerates. So should your scripts...up to a certain limit.</em>
 </p>
 
 ## Install
@@ -45,6 +45,16 @@ export default {
     model: "gpt-5.4",
     fullAuto: true,
   },
+  critique: {
+    enabled: true,
+    repeatFailureLimit: 1,
+    acpClient: {
+      name: "codex",
+      model: "gpt-5.4",
+      sandbox: "read-only",
+      fullAuto: false,
+    },
+  },
 } satisfies DeadpoolRunnerConfig;
 ```
 
@@ -60,11 +70,27 @@ export default {
 | `--verbose, -v`        | Show AI client logs                                     |
 | `--config <path>`      | Explicit config file path                               |
 
+## Repeat-Failure Critique
+
+Deadpool Runner now keeps the original retry budget and adds a second loop guard by default.
+
+- `retries` still caps the total number of fixer attempts.
+- `critique.repeatFailureLimit` stops earlier when the same failure keeps happening consecutively.
+- The default repeat-failure limit is `1`, so if the same failure comes back on the very next loop, Deadpool Runner exits instead of spending another repair attempt.
+- Critique runs are read-only by default and can use their own ACP settings separate from the fixer.
+
+Environment variables:
+
+- `DEADPOOL_RUNNER_REPEAT_FAILURE_LIMIT` overrides `critique.repeatFailureLimit`
+- `DEADPOOL_RUNNER_DISABLE_CRITIQUE=1` disables critique and falls back to retry-budget-only behavior
+- `DEADPOOL_RUNNER_CRITIQUE_CLIENT`, `DEADPOOL_RUNNER_CRITIQUE_MODEL`, `DEADPOOL_RUNNER_CRITIQUE_EXECUTABLE`, `DEADPOOL_RUNNER_CRITIQUE_SANDBOX`, and `DEADPOOL_RUNNER_CRITIQUE_FULL_AUTO` override the critique ACP configuration
+
 ## How it works
 
 1. Runs your command
 2. If it fails, AI reads your repo, fixes the code
-3. Reruns — repeats until it passes or hits the retry limit
+3. On later failures, a critique ACP checks whether the new failure is basically the same as the previous one
+4. Reruns until it passes, repeats the same failure too many times, or hits the retry limit
 
 That's it. Self-healing scripts.
 
