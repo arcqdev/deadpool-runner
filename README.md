@@ -47,7 +47,7 @@ import type { DeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
 
 const config: DeadpoolRunnerConfig = {
   command: "vp test",
-  retries: 3,
+  retries: 5,
   initialPrompt: `
 This repo uses Vite+.
 Use vp commands instead of npm, pnpm, or yarn directly.
@@ -143,7 +143,7 @@ import type { DeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
 
 export default {
   command: ["vp", "test"],
-  retries: 3,
+  retries: 5,
   initialPrompt: "The repo uses strict TypeScript and Vite+ commands.",
   maxOutputChars: 12000,
   env: {
@@ -165,7 +165,7 @@ Equivalent user-level default config:
 
 ```json
 {
-  "retries": 3,
+  "retries": 5,
   "maxOutputChars": 12000,
   "acpClient": {
     "name": "codex",

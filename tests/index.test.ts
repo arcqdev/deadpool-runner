@@ -115,11 +115,14 @@ describe("loadConfig", () => {
       expect(config.acpClient?.name).toBe("codex");
       expect(config.acpClient?.model).toBe("gpt-5.4");
       expect(config.acpClient?.fullAuto).toBe(true);
+      expect(config.retries).toBe(5);
       expect(config.maxOutputChars).toBe(12000);
 
       const fileContents = JSON.parse(await readFile(globalConfigPath, "utf8")) as {
+        retries?: number;
         acpClient?: { model?: string; fullAuto?: boolean };
       };
+      expect(fileContents.retries).toBe(5);
       expect(fileContents.acpClient?.model).toBe("gpt-5.4");
       expect(fileContents.acpClient?.fullAuto).toBe(true);
     } finally {
@@ -129,6 +132,24 @@ describe("loadConfig", () => {
 });
 
 describe("resolveConfig", () => {
+  test("defaults retries to five failures", async () => {
+    const dir = await createTempDir();
+    await writeFile(
+      path.join(dir, "deadpool-runner.config.ts"),
+      `
+      export default {
+        command: ["node", "script.js"],
+      };
+      `,
+    );
+
+    const { config } = await resolveConfig({
+      cwd: dir,
+    });
+
+    expect(config.retries).toBe(5);
+  });
+
   test("merges codex sandbox overrides from the cli", async () => {
     const dir = await createTempDir();
     await writeFile(
@@ -233,6 +254,32 @@ describe("buildCodexArgs", () => {
 });
 
 describe("createRunner", () => {
+  test("defaults to five fixer attempts when retries are omitted", async () => {
+    const fixFailure = vi.fn(async () => ({ summary: "attempted" }));
+    const runner = createRunner({
+      createClient: () =>
+        ({
+          name: "fake",
+          fixFailure,
+        }) satisfies ACPClient,
+      runCommand: vi.fn(async () => ({
+        code: 1,
+        signal: null,
+        stdout: "",
+        stderr: "fail",
+        combinedOutput: "fail",
+      })),
+    });
+
+    const result = await runner.run({
+      cwd: process.cwd(),
+      command: "vp test",
+    });
+
+    expect(result.code).toBe(1);
+    expect(fixFailure).toHaveBeenCalledTimes(5);
+  });
+
   test("fixes and reruns a failing command until it passes", async () => {
     const dir = await createTempDir();
     const targetFile = path.join(dir, "target.js");

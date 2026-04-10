@@ -52,7 +52,7 @@ export async function resolveConfig(
   const config: DeadpoolRunnerConfig = {
     ...fileConfig,
     cwd,
-    retries: args.retries ?? fileConfig.retries ?? 3,
+    retries: args.retries ?? fileConfig.retries ?? 5,
     initialPrompt: args.prompt ?? fileConfig.initialPrompt,
     command: args.command ?? fileConfig.command,
     acpClient: {
@@ -127,7 +127,7 @@ async function ensureGlobalConfigPath(): Promise<string> {
 
 function getDefaultGlobalConfig(): DeadpoolRunnerConfig {
   return {
-    retries: 3,
+    retries: 5,
     maxOutputChars: 12000,
     acpClient: {
       name: "codex",

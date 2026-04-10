@@ -22,7 +22,7 @@ export function createRunner(deps: RunnerDependencies = {}) {
       }
 
       const client = create(config);
-      const maxRetries = Math.max(0, config.retries ?? 3);
+      const maxRetries = Math.max(0, config.retries ?? 5);
       const runArtifacts = await createRunArtifacts(config);
       let attempt = 0;
 
