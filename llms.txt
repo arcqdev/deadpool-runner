@@ -1,0 +1,145 @@
+# Deadpool Runner
+
+Deadpool Runner is a self-healing command runner for CLI and SDK usage.
+
+## Install
+
+- Local dependency: `vp add @arcqdev/deadpool-runner`
+- Global CLI: `npm i -g @arcqdev/deadpool-runner`
+
+## CLI Usage
+
+- Basic run: `dpr -- vp test`
+- With prompt and retry budget: `dpr --retries 3 --prompt "Fix root causes" -- vp check`
+- With config file only: `dpr`
+
+### CLI config file
+
+Use `deadpool-runner.config.ts`:
+
+```ts
+import { defineDeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
+
+export default defineDeadpoolRunnerConfig({
+  command: ["vp", "test"],
+  retries: 5,
+  initialPrompt: "Fix the actual regression, not the assertion.",
+  acpClient: {
+    name: "codex",
+    model: "gpt-5.4",
+    fullAuto: true,
+  },
+  critique: {
+    enabled: true,
+    repeatFailureLimit: 1,
+    acpClient: {
+      sandbox: "read-only",
+      fullAuto: false,
+    },
+  },
+});
+```
+
+### Important CLI flags
+
+- `--retries <n>`
+- `--prompt <text>`
+- `--cwd <path>` or `--repo <path>`
+- `--client <name>`
+- `--model <name>`
+- `--sandbox <mode>`
+- `--max-output-chars <n>`
+- `--verbose`
+- `--config <path>`
+
+## SDK Usage
+
+### High-level API
+
+```ts
+import { runDeadpoolRunner } from "@arcqdev/deadpool-runner";
+
+const result = await runDeadpoolRunner({
+  cwd: process.cwd(),
+  command: ["vp", "test"],
+  retries: 2,
+  initialPrompt: "TypeScript package. Keep fixes minimal.",
+  acpClient: {
+    name: "codex",
+    model: "gpt-5.4",
+    sandbox: "workspace-write",
+  },
+});
+
+if (result.code !== 0) {
+  throw new Error(`Repair loop failed with exit code ${result.code}`);
+}
+```
+
+### Advanced SDK usage
+
+Use `createRunner()` when you need dependency injection for command execution or ACP client creation:
+
+```ts
+import { createRunner } from "@arcqdev/deadpool-runner";
+
+const runner = createRunner({
+  runCommand: async () => ({
+    code: 0,
+    signal: null,
+    stdout: "ok\n",
+    stderr: "",
+    combinedOutput: "ok\n",
+  }),
+});
+
+await runner.run({
+  command: ["vp", "test"],
+});
+```
+
+### Custom ACP clients
+
+```ts
+import {
+  registerACPClient,
+  runDeadpoolRunner,
+  type ACPClient,
+  type ACPClientConfig,
+} from "@arcqdev/deadpool-runner";
+
+registerACPClient("internal-agent", (config?: ACPClientConfig): ACPClient => ({
+  name: "internal-agent",
+  async fixFailure(context) {
+    console.log("repairing", context.command, "with", config?.model ?? "default");
+    return { summary: "Applied internal-agent repair." };
+  },
+}));
+
+await runDeadpoolRunner({
+  command: ["vp", "test"],
+  acpClient: {
+    name: "internal-agent",
+    model: "my-internal-model",
+  },
+});
+```
+
+## Runtime behavior
+
+- The wrapped command runs first.
+- On failure, the ACP client receives the command context and captured output.
+- Run artifacts are written under `~/.deadpool-runner/runs/`.
+- The loop stops on success, on retry exhaustion, or when critique decides the same failure repeated too many times.
+
+## Environment overrides
+
+- `DEADPOOL_RUNNER_REPEAT_FAILURE_LIMIT`
+- `DEADPOOL_RUNNER_DISABLE_CRITIQUE=1`
+- `DEADPOOL_RUNNER_CRITIQUE_CLIENT`
+- `DEADPOOL_RUNNER_CRITIQUE_MODEL`
+- `DEADPOOL_RUNNER_CRITIQUE_COLOR`
+- `DEADPOOL_RUNNER_CRITIQUE_SANDBOX`
+- `DEADPOOL_RUNNER_CRITIQUE_BYPASS_SANDBOX`
+- `DEADPOOL_RUNNER_CRITIQUE_FULL_AUTO`
+- `DEADPOOL_RUNNER_CRITIQUE_EXECUTABLE`

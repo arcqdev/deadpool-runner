@@ -1,16 +1,18 @@
 {
   "name": "@arcqdev/deadpool-runner",
   "version": "0.1.10",
-  "description": "Retry failing commands with an ACP-powered fixer while preserving normal script output.",
+  "description": "Self-healing command runner for CLI and SDK usage with ACP-powered fixes.",
   "keywords": [
     "acp",
     "automation",
     "cli",
     "codex",
     "developer-tools",
-    "retry"
+    "retry",
+    "sdk",
+    "testing"
   ],
-  "homepage": "https://github.com/arcqdev/deadpool-runner#readme",
+  "homepage": "https://arcqdev.github.io/deadpool-runner/",
   "bugs": {
     "url": "https://github.com/arcqdev/deadpool-runner/issues"
   },
@@ -26,6 +28,8 @@
     "dist"
   ],
   "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": "./dist/index.mjs",
     "./bin": "./dist/bin.mjs",

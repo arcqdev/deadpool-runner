@@ -5,10 +5,12 @@ import { Writable } from "node:stream";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import {
   buildCodexArgs,
+  defineDeadpoolRunnerConfig,
   getHelpText,
   loadConfig,
   parseCliArgs,
   resolveConfig,
+  runDeadpoolRunner,
   runCli,
 } from "../src/index.ts";
 import { runCommand } from "../src/process.ts";
@@ -250,6 +252,45 @@ describe("buildCodexArgs", () => {
       "--dangerously-bypass-approvals-and-sandbox",
       "-",
     ]);
+  });
+});
+
+describe("sdk helpers", () => {
+  test("returns config identity from defineDeadpoolRunnerConfig", () => {
+    const config = {
+      command: ["vp", "test"] as const,
+      retries: 2,
+    };
+
+    expect(defineDeadpoolRunnerConfig(config)).toBe(config);
+  });
+
+  test("runs programmatically through runDeadpoolRunner", async () => {
+    const runCommand = vi.fn(
+      async (): Promise<RunResult> => ({
+        code: 0,
+        signal: null,
+        stdout: "ok\n",
+        stderr: "",
+        combinedOutput: "ok\n",
+      }),
+    );
+
+    const result = await runDeadpoolRunner(
+      {
+        command: ["vp", "test"],
+      },
+      {
+        createClient: () => ({
+          name: "test",
+          fixFailure: async () => ({ summary: "unused" }),
+        }),
+        runCommand,
+      },
+    );
+
+    expect(result.code).toBe(0);
+    expect(runCommand).toHaveBeenCalledTimes(1);
   });
 });
 
