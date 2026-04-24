@@ -1,3 +1,18 @@
+# Landing page design — DO NOT REDESIGN
+
+`docs/index.html` is the GitHub Pages landing page. It is intentionally a comic-book aesthetic and must stay that way.
+
+Locked-in requirements:
+
+- Fonts: **Bangers** (display/titles), **Comic Neue** (body), **JetBrains Mono** (code). Do not switch to Inter, system-ui, Space Grotesk, or any "clean SaaS" font.
+- Palette: dark `#1a1a2e` background, red `#e11d48` / yellow `#facc15` comic accents, halftone dot pattern overlay.
+- The **Deadpool mascot (`deadpool-mascot.png`) belongs in the hero**, large and bouncing. Do NOT put it in the top-left nav. The nav is text-only.
+- Copy must be **witty and tied to Deadpool self-healing** (regeneration factor, won't stay dead, heals itself). Don't replace with generic dev-tool copy.
+- Keep it tight. No "Operational Notes" section, no redundant explainer paragraphs, no sprawling feature grids. CLI + SDK + a flag table is enough.
+- Comic panels (Run / Bleed / Heal) stay as the "how it works" explainer.
+
+If you're tempted to "modernize" or "clean up" this page: don't. The previous modernization attempt replaced the comic style with a generic dark-SaaS look and it was worse. Restore from git history before redesigning.
+
 <!--VITE PLUS START-->
 
 # Using Vite+, the Unified Toolchain for the Web

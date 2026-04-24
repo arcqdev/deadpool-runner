@@ -3,19 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Deadpool Runner | Self-Healing CLI and SDK</title>
+    <title>Deadpool Runner — Scripts That Won't Stay Dead</title>
     <meta
       name="description"
-      content="Deadpool Runner is a self-healing command runner you can use as a CLI or embed as an SDK."
+      content="Self-healing command runner. Fails, patches itself, runs again. Regeneration factor included."
     />
     <meta
       name="keywords"
-      content="deadpool runner, sdk, cli, ai fixer, codex, retries, self-healing scripts"
+      content="deadpool runner, self-healing scripts, AI code fixer, CLI, SDK, ACP, codex"
     />
-    <meta property="og:title" content="Deadpool Runner | Self-Healing CLI and SDK" />
+    <meta name="author" content="arcqdev" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:title" content="Deadpool Runner — Scripts That Won't Stay Dead" />
     <meta
       property="og:description"
-      content="Wrap a failing command, let an ACP client fix the repo, and retry until it passes."
+      content="Fails, patches itself, runs again. Regeneration factor included."
     />
     <meta
       property="og:image"
@@ -23,16 +26,18 @@
     />
     <meta property="og:url" content="https://arcqdev.github.io/deadpool-runner/" />
     <meta property="og:type" content="website" />
+
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Deadpool Runner | Self-Healing CLI and SDK" />
+    <meta name="twitter:title" content="Deadpool Runner — Scripts That Won't Stay Dead" />
     <meta
       name="twitter:description"
-      content="Use Deadpool Runner from the command line or embed it as an SDK in your own tooling."
+      content="Fails, patches itself, runs again. Regeneration factor included."
     />
     <meta
       name="twitter:image"
       content="https://arcqdev.github.io/deadpool-runner/deadpool-mascot.png"
     />
+
     <link rel="canonical" href="https://arcqdev.github.io/deadpool-runner/" />
     <link rel="icon" type="image/png" href="deadpool-mascot.png" />
 
@@ -41,9 +46,9 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Deadpool Runner",
+        "description": "Self-healing CLI and SDK. Fails, patches itself, runs again.",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "macOS, Linux, Windows",
-        "description": "Self-healing command runner for CLI and SDK usage with ACP-powered fixes.",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": {
           "@type": "Organization",
@@ -55,717 +60,633 @@
       }
     </script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       :root {
-        --bg: #09090f;
-        --bg-elevated: rgba(18, 18, 28, 0.88);
-        --card: rgba(255, 255, 255, 0.05);
-        --card-strong: rgba(255, 255, 255, 0.08);
-        --text: #f5f7fb;
-        --muted: #a5aec2;
+        --red: #e11d48;
+        --red-dark: #be123c;
         --yellow: #facc15;
-        --red: #ef4444;
-        --red-dark: #7f1d1d;
-        --line: rgba(255, 255, 255, 0.11);
-        --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        --yellow-dark: #eab308;
+        --black: #1a1a2e;
+        --white: #f8f8f8;
+        --font-comic: "Comic Neue", cursive;
+        --font-title: "Bangers", cursive;
+        --font-mono: "JetBrains Mono", monospace;
       }
 
       * {
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
       }
 
-      html {
-        scroll-behavior: smooth;
-      }
-
       body {
-        margin: 0;
-        min-height: 100vh;
-        font-family:
-          Inter,
-          ui-sans-serif,
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(circle at top, rgba(239, 68, 68, 0.22), transparent 38%),
-          linear-gradient(180deg, #11111b 0%, var(--bg) 40%, #07070c 100%);
+        font-family: var(--font-comic);
+        background: var(--black);
+        color: var(--white);
+        line-height: 1.6;
+        overflow-x: hidden;
       }
 
-      a {
-        color: inherit;
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        opacity: 0.05;
+        background-image: radial-gradient(circle, #fff 1.5px, transparent 1.5px);
+        background-size: 14px 14px;
+        pointer-events: none;
       }
 
-      code {
-        font-family:
-          "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-          "Liberation Mono", monospace;
-      }
-
-      .shell {
-        width: min(1120px, calc(100% - 2rem));
-        margin: 0 auto;
-      }
-
-      .nav {
-        position: sticky;
+      /* ---- NAV (text-only, no mascot) ---- */
+      nav {
+        position: fixed;
         top: 0;
-        z-index: 10;
-        backdrop-filter: blur(18px);
-        background: rgba(9, 9, 15, 0.82);
-        border-bottom: 1px solid var(--line);
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: rgba(26, 26, 46, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 4px solid var(--red);
       }
-
       .nav-inner {
+        max-width: 800px;
+        margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        min-height: 72px;
+        padding: 0 1.5rem;
+        height: 56px;
       }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 0.9rem;
+      .nav-brand {
+        font-family: var(--font-title);
+        font-size: 1.4rem;
+        color: var(--yellow);
+        letter-spacing: 0.06em;
         text-decoration: none;
       }
-
-      .brand img {
-        width: 44px;
-        height: 44px;
-        filter: drop-shadow(0 12px 20px rgba(239, 68, 68, 0.35));
-      }
-
-      .brand strong {
-        display: block;
-        font-size: 1rem;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-
-      .brand span {
-        display: block;
-        color: var(--muted);
-        font-size: 0.86rem;
-      }
-
       .nav-links {
         display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
+        gap: 1.1rem;
         align-items: center;
       }
-
       .nav-links a {
+        font-family: var(--font-title);
+        color: #ccc;
+        font-size: 1rem;
+        letter-spacing: 0.05em;
         text-decoration: none;
-        color: var(--muted);
-        font-size: 0.92rem;
+        transition: color 0.15s;
       }
-
       .nav-links a:hover {
-        color: var(--text);
+        color: var(--yellow);
+      }
+      .nav-links .github-pill {
+        padding: 0.3rem 0.85rem;
+        border-radius: 6px;
+        background: var(--red);
+        color: #fff;
+        border: 2px solid var(--red-dark);
+        transition: transform 0.15s;
+      }
+      .nav-links .github-pill:hover {
+        transform: scale(1.05);
+        color: #fff;
       }
 
+      /* ---- HERO ---- */
       .hero {
-        padding: 5.5rem 0 3.5rem;
-      }
-
-      .hero-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.9fr);
-        gap: 2rem;
-        align-items: center;
-      }
-
-      .eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-        padding: 0.4rem 0.75rem;
-        border: 1px solid rgba(250, 204, 21, 0.3);
-        border-radius: 999px;
-        background: rgba(250, 204, 21, 0.08);
-        color: var(--yellow);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.75rem;
-        font-weight: 700;
-      }
-
-      h1 {
-        margin: 1rem 0 1rem;
-        font-size: clamp(2.8rem, 7vw, 5.6rem);
-        line-height: 0.95;
-        letter-spacing: -0.05em;
-      }
-
-      .hero p {
-        margin: 0;
-        font-size: 1.1rem;
-        line-height: 1.7;
-        color: var(--muted);
-        max-width: 42rem;
-      }
-
-      .accent {
-        color: var(--yellow);
-      }
-
-      .hero-actions {
+        min-height: 100vh;
         display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin: 2rem 0 1.5rem;
-      }
-
-      .button {
-        display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 48px;
-        padding: 0 1.2rem;
-        border-radius: 14px;
-        text-decoration: none;
-        font-weight: 700;
-        border: 1px solid transparent;
-        transition:
-          transform 0.18s ease,
-          border-color 0.18s ease,
-          background 0.18s ease;
+        padding: 5rem 1.5rem 3rem;
+        text-align: center;
+        position: relative;
+        background:
+          radial-gradient(ellipse 70% 50% at 50% 30%, rgba(225, 29, 72, 0.18) 0%, transparent 60%),
+          var(--black);
       }
-
-      .button:hover {
-        transform: translateY(-1px);
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 680px;
       }
-
-      .button-primary {
-        background: linear-gradient(135deg, var(--red) 0%, #fb7185 100%);
-        color: white;
-        box-shadow: var(--shadow);
+      .hero-mascot {
+        width: 220px;
+        height: 220px;
+        object-fit: contain;
+        margin-bottom: 1.5rem;
+        filter: drop-shadow(0 0 40px rgba(225, 29, 72, 0.5));
+        animation: bounce 2.5s ease-in-out infinite;
       }
-
-      .button-secondary {
-        border-color: rgba(250, 204, 21, 0.32);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--yellow);
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-1deg);
+        }
+        50% {
+          transform: translateY(-14px) rotate(1deg);
+        }
       }
-
-      .install-card,
-      .panel,
-      .feature,
-      .table-card,
-      .site-note {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 24px;
-        box-shadow: var(--shadow);
-      }
-
-      .install-card {
-        padding: 1.2rem;
-      }
-
-      .install-card h2,
-      .section-title {
-        margin: 0 0 0.8rem;
-        font-size: 1.4rem;
-      }
-
-      .command {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: center;
-        padding: 1rem 1.1rem;
-        border-radius: 18px;
-        background: rgba(0, 0, 0, 0.34);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .command code {
-        font-size: 0.96rem;
-        color: var(--yellow);
-      }
-
-      .command button {
-        border: 0;
-        border-radius: 12px;
-        padding: 0.7rem 0.9rem;
-        background: rgba(239, 68, 68, 0.15);
-        color: white;
-        cursor: pointer;
-        font-weight: 700;
-      }
-
-      .command button:hover {
-        background: rgba(239, 68, 68, 0.26);
-      }
-
-      section {
-        padding: 1.5rem 0 4rem;
-      }
-
-      .grid-2,
-      .grid-3 {
-        display: grid;
-        gap: 1.25rem;
-      }
-
-      .grid-2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .grid-3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .panel,
-      .feature,
-      .table-card,
-      .site-note {
-        padding: 1.35rem;
-      }
-
-      .kicker {
-        font-size: 0.8rem;
-        color: var(--yellow);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-weight: 700;
-      }
-
-      .panel h3,
-      .feature h3,
-      .site-note h3 {
-        margin: 0.65rem 0 0.5rem;
-        font-size: 1.15rem;
-      }
-
-      .panel p,
-      .feature p,
-      .site-note p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.7;
-      }
-
-      pre {
-        margin: 0;
-        padding: 1.15rem;
-        overflow-x: auto;
-        border-radius: 18px;
-        background: rgba(0, 0, 0, 0.44);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .examples {
-        display: grid;
-        gap: 1.25rem;
-      }
-
-      .examples-header {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 1rem;
+      .hero h1 {
+        font-family: var(--font-title);
+        font-size: clamp(2.8rem, 8vw, 4.8rem);
+        color: #fff;
+        letter-spacing: 0.04em;
+        line-height: 1.05;
         margin-bottom: 1rem;
+        text-shadow:
+          3px 3px 0 var(--red-dark),
+          6px 6px 0 rgba(0, 0, 0, 0.3);
+      }
+      .hero h1 .accent {
+        color: var(--yellow);
+      }
+      .hero .pitch {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #ddd;
+        margin-bottom: 0.4rem;
+      }
+      .hero .pitch em {
+        color: var(--yellow);
+        font-style: normal;
+      }
+      .hero .why-name {
+        font-size: 0.95rem;
+        color: #888;
+        margin-bottom: 2rem;
+        font-style: italic;
+      }
+      .install-bar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.7rem 1.4rem;
+        margin-bottom: 1.5rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 2px solid var(--yellow-dark);
+        border-radius: 10px;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        color: var(--yellow);
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          transform 0.15s;
+      }
+      .install-bar:hover {
+        transform: scale(1.03);
+        border-color: var(--yellow);
+      }
+      .install-bar .dollar {
+        color: var(--red);
+        user-select: none;
+      }
+      .install-bar .copy-hint {
+        color: #777;
+        font-size: 0.7rem;
+        font-family: var(--font-comic);
+      }
+      .hero-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.7rem 1.6rem;
+        border-radius: 8px;
+        font-family: var(--font-title);
+        font-size: 1.05rem;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        transition: transform 0.15s;
+        border: 2px solid;
+        cursor: pointer;
+      }
+      .btn:hover {
+        transform: scale(1.05);
+      }
+      .btn-primary {
+        background: var(--red);
+        color: #fff;
+        border-color: var(--red-dark);
+      }
+      .btn-secondary {
+        background: transparent;
+        color: var(--yellow);
+        border-color: var(--yellow-dark);
       }
 
-      .examples-header p,
-      .table-card p {
-        color: var(--muted);
-        margin: 0;
+      /* ---- SECTIONS ---- */
+      section {
+        padding: 4rem 1.5rem;
+        position: relative;
+        z-index: 1;
+      }
+      .container {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      .section-title {
+        font-family: var(--font-title);
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+        color: var(--yellow);
+        letter-spacing: 0.04em;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
       }
 
-      .flag-table {
+      /* ---- HOW IT WORKS (comic panels) ---- */
+      .comic-strip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      .panel {
+        background: rgba(255, 255, 255, 0.04);
+        border: 3px solid var(--red);
+        border-radius: 12px;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+      }
+      .panel-num {
+        font-family: var(--font-title);
+        font-size: 2.5rem;
+        color: var(--red);
+        line-height: 1;
+      }
+      .panel-label {
+        font-family: var(--font-title);
+        font-size: 1.15rem;
+        color: var(--yellow);
+        letter-spacing: 0.03em;
+        margin-top: 0.4rem;
+      }
+      .panel-desc {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin-top: 0.3rem;
+      }
+      .loop-note {
+        text-align: center;
+        font-family: var(--font-title);
+        font-size: 1rem;
+        color: #777;
+        letter-spacing: 0.05em;
+      }
+
+      /* ---- USAGE ---- */
+      #usage,
+      #sdk {
+        border-top: 4px solid var(--red);
+        background: linear-gradient(180deg, rgba(225, 29, 72, 0.06) 0%, transparent 100%);
+      }
+      pre {
+        background: rgba(0, 0, 0, 0.5);
+        border: 3px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 1.25rem 1.5rem;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        line-height: 1.8;
+        color: #ddd;
+        margin-bottom: 1.25rem;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+      }
+      .code-comment {
+        color: #666;
+      }
+      .code-flag {
+        color: #60a5fa;
+      }
+      .code-string {
+        color: #34d399;
+      }
+      .code-keyword {
+        color: #f472b6;
+      }
+
+      .sub-lead {
+        font-size: 1rem;
+        color: #999;
+        margin-bottom: 1.25rem;
+        font-weight: 700;
+      }
+
+      /* ---- FLAGS TABLE ---- */
+      .flags-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
       }
-
-      .flag-table th,
-      .flag-table td {
-        text-align: left;
-        vertical-align: top;
-        padding: 0.9rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      .flag-table th {
+      .flags-table th {
+        font-family: var(--font-title);
         color: var(--yellow);
+        text-align: left;
+        padding: 0.55rem 0.75rem;
+        border-bottom: 2px solid var(--red);
+        letter-spacing: 0.04em;
+      }
+      .flags-table td {
+        padding: 0.45rem 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: #bbb;
+      }
+      .flags-table td:first-child {
+        font-family: var(--font-mono);
+        color: var(--yellow);
+        white-space: nowrap;
         font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
       }
 
-      .flag-table td:first-child {
-        color: var(--text);
-        width: 34%;
-      }
-
-      .muted {
-        color: var(--muted);
-      }
-
+      /* ---- FOOTER ---- */
       footer {
-        padding: 0 0 4rem;
+        padding: 2rem 1.5rem;
+        border-top: 4px solid var(--red);
+        text-align: center;
       }
-
-      .footer {
+      .footer-inner {
+        max-width: 720px;
+        margin: 0 auto;
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        color: var(--muted);
-        border-top: 1px solid var(--line);
-        padding-top: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .footer-brand {
+        font-family: var(--font-title);
+        color: var(--yellow);
+        font-size: 1rem;
+        letter-spacing: 0.04em;
+      }
+      .footer-links {
+        display: flex;
+        gap: 1.25rem;
+        list-style: none;
+      }
+      .footer-links a {
+        color: #777;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: color 0.2s;
+      }
+      .footer-links a:hover {
+        color: var(--yellow);
+      }
+      .footer-copy {
+        color: #555;
+        font-size: 0.78rem;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-style: italic;
       }
 
-      @media (max-width: 920px) {
-        .hero-grid,
-        .grid-2,
-        .grid-3 {
+      @media (max-width: 600px) {
+        .hero-mascot {
+          width: 150px;
+          height: 150px;
+        }
+        .comic-strip {
           grid-template-columns: 1fr;
         }
-
-        .nav-inner {
-          padding: 0.6rem 0;
+        section {
+          padding: 3rem 1.25rem;
         }
-      }
-
-      @media (max-width: 640px) {
-        .shell {
-          width: min(100% - 1.1rem, 1120px);
+        .footer-inner {
+          justify-content: center;
         }
-
-        .command {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .examples-header,
-        .footer {
-          flex-direction: column;
-          align-items: flex-start;
+        .nav-links a:not(.github-pill) {
+          display: none;
         }
       }
     </style>
   </head>
   <body>
-    <nav class="nav">
-      <div class="shell nav-inner">
-        <a class="brand" href="#top">
-          <img src="deadpool-mascot.png" alt="Deadpool Runner mascot" width="44" height="44" />
-          <span>
-            <strong>Deadpool Runner</strong>
-            <span>Self-healing CLI and SDK</span>
-          </span>
-        </a>
+    <nav>
+      <div class="nav-inner">
+        <a href="#top" class="nav-brand">deadpool-runner</a>
         <div class="nav-links">
-          <a href="#cli">CLI</a>
+          <a href="#usage">CLI</a>
           <a href="#sdk">SDK</a>
-          <a href="#clients">Custom Clients</a>
-          <a href="https://github.com/arcqdev/deadpool-runner">GitHub</a>
+          <a
+            href="https://github.com/arcqdev/deadpool-runner"
+            class="github-pill"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
         </div>
       </div>
     </nav>
 
-    <main id="top" class="shell">
-      <section class="hero">
-        <div class="hero-grid">
-          <div>
-            <div class="eyebrow">CLI-first runtime, SDK-ready surface</div>
-            <h1>Use it from the shell or <span class="accent">embed it in your tooling</span>.</h1>
-            <p>
-              Deadpool Runner wraps a command, captures failures, asks an ACP client to repair the
-              repo, and retries until the command passes, repeats the same failure, or exhausts the
-              configured budget.
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="#sdk">See SDK Usage</a>
-              <a class="button button-secondary" href="https://github.com/arcqdev/deadpool-runner"
-                >View Repository</a
-              >
-            </div>
-            <p class="muted">
-              Part of <a href="https://foldablestack.com/dev/">Run Suite</a>. GitHub Pages is
-              published from the committed <code>docs/</code> directory after CI passes.
-            </p>
-          </div>
+    <section class="hero" id="top">
+      <div class="hero-content">
+        <img
+          src="deadpool-mascot.png"
+          alt="Deadpool Runner mascot"
+          class="hero-mascot"
+          width="220"
+          height="220"
+        />
+        <h1>Scripts That <span class="accent">Won't Stay Dead.</span></h1>
+        <p class="pitch">
+          Deadpool doesn't die. Neither does your command.
+          <em>It fails, it heals, it runs again.</em>
+        </p>
+        <p class="why-name">Regeneration factor built in — every red squiggle grows back fixed.</p>
+        <div
+          class="install-bar"
+          onclick="navigator.clipboard.writeText('npm i -g @arcqdev/deadpool-runner')"
+          title="Click to copy"
+        >
+          <span class="dollar">$</span>
+          <span>npm i -g @arcqdev/deadpool-runner</span>
+          <span class="copy-hint">click to copy</span>
+        </div>
+        <div class="hero-actions">
+          <a href="#usage" class="btn btn-primary">CLI</a>
+          <a href="#sdk" class="btn btn-secondary">SDK</a>
+          <a
+            href="https://github.com/arcqdev/deadpool-runner"
+            class="btn btn-secondary"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+        </div>
+      </div>
+    </section>
 
-          <div class="install-card">
-            <h2>Install</h2>
-            <div class="command">
-              <code id="install-command">vp add @arcqdev/deadpool-runner</code>
-              <button type="button" id="copy-install">Copy</button>
-            </div>
-            <p class="muted" style="margin-top: 0.9rem">
-              Use <code>npm i -g @arcqdev/deadpool-runner</code> if you want the global
-              <code>dpr</code> command.
-            </p>
+    <section>
+      <div class="container">
+        <div class="comic-strip">
+          <div class="panel">
+            <div class="panel-num">1</div>
+            <div class="panel-label">Run</div>
+            <div class="panel-desc">Your command, unchanged.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-num">2</div>
+            <div class="panel-label">Bleed</div>
+            <div class="panel-desc">It fails. An AI fixer reads the wound.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-num">3</div>
+            <div class="panel-label">Heal</div>
+            <div class="panel-desc">Patch, rerun, repeat until green.</div>
           </div>
         </div>
-      </section>
+        <p class="loop-note">
+          Stops on success, retry limit, or when the same wound keeps reopening.
+        </p>
+      </div>
+    </section>
 
-      <section>
-        <div class="grid-3">
-          <article class="feature">
-            <div class="kicker">1. Run</div>
-            <h3>Wrap the real command</h3>
-            <p>
-              Keep your normal test, build, or check command unchanged and let Deadpool Runner own
-              the retry loop.
-            </p>
-          </article>
-          <article class="feature">
-            <div class="kicker">2. Repair</div>
-            <h3>Feed the ACP client context</h3>
-            <p>
-              Each failure includes captured output plus per-run artifacts written under
-              <code>~/.deadpool-runner/runs/</code>.
-            </p>
-          </article>
-          <article class="feature">
-            <div class="kicker">3. Stop cleanly</div>
-            <h3>Respect real limits</h3>
-            <p>
-              The loop exits on success, retry exhaustion, or a repeat-failure critique that decides
-              the fix is stuck.
-            </p>
-          </article>
-        </div>
-      </section>
+    <section id="usage">
+      <div class="container">
+        <h2 class="section-title">CLI</h2>
+        <p class="sub-lead">Wrap anything. Let it heal itself.</p>
 
-      <section id="cli">
-        <div class="examples-header">
-          <div>
-            <div class="kicker">CLI</div>
-            <h2 class="section-title">Use the command runner directly</h2>
-          </div>
-          <p>Good for local workflows, CI helpers, or wrapper scripts.</p>
-        </div>
+        <pre><code><span class="code-comment"># run a command — auto-fixes and reruns on failure</span>
+dpr <span class="code-flag">--</span> vp test
 
-        <div class="examples">
-          <article class="panel">
-            <h3>Quick start</h3>
-            <pre><code>dpr -- vp test
+<span class="code-comment"># tune retries and feed the fixer context</span>
+dpr <span class="code-flag">--retries</span> <span class="code-string">3</span> <span class="code-flag">--prompt</span> <span class="code-string">"Vite+ package, fix root causes"</span> <span class="code-flag">--</span> vp check
 
-dpr --retries 3 --prompt "Vite+ package, fix root causes" -- vp check
+<span class="code-comment"># or commit to a config file and just run</span>
+dpr</code></pre>
 
-dpr --config ./deadpool-runner.config.ts</code></pre>
-          </article>
+        <p class="sub-lead">deadpool-runner.config.ts</p>
+        <pre><code><span class="code-keyword">import</span> { defineDeadpoolRunnerConfig } <span class="code-keyword">from</span> <span class="code-string">"@arcqdev/deadpool-runner"</span>;
 
-          <article class="panel">
-            <h3>Config file</h3>
-            <pre><code>import { defineDeadpoolRunnerConfig } from "@arcqdev/deadpool-runner";
-
-export default defineDeadpoolRunnerConfig({
-  command: ["vp", "test"],
-  retries: 5,
-  initialPrompt: "Fix the actual regression, not the assertion.",
-  acpClient: {
-    name: "codex",
-    model: "gpt-5.4",
-    fullAuto: true,
-  },
-  critique: {
-    enabled: true,
-    repeatFailureLimit: 1,
-    acpClient: {
-      sandbox: "read-only",
-      fullAuto: false,
-    },
-  },
+<span class="code-keyword">export default</span> defineDeadpoolRunnerConfig({
+  command: [<span class="code-string">"vp"</span>, <span class="code-string">"test"</span>],
+  retries: <span class="code-string">5</span>,
+  initialPrompt: <span class="code-string">"Fix the actual regression, not the assertion."</span>,
+  acpClient: { name: <span class="code-string">"codex"</span>, model: <span class="code-string">"gpt-5.4"</span>, fullAuto: <span class="code-string">true</span> },
 });</code></pre>
-          </article>
-        </div>
-      </section>
 
-      <section id="sdk">
-        <div class="examples-header">
-          <div>
-            <div class="kicker">SDK</div>
-            <h2 class="section-title">Embed the retry loop in your own code</h2>
-          </div>
-          <p>The package now exposes a first-class programmatic entrypoint.</p>
-        </div>
+        <table class="flags-table">
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>--retries &lt;n&gt;</td>
+              <td>Max fix attempts (default: 5)</td>
+            </tr>
+            <tr>
+              <td>--prompt &lt;text&gt;</td>
+              <td>Context for the AI fixer</td>
+            </tr>
+            <tr>
+              <td>--client, --model</td>
+              <td>Pick the ACP backend and model</td>
+            </tr>
+            <tr>
+              <td>--sandbox &lt;mode&gt;</td>
+              <td>read-only · workspace-write · danger-full-access</td>
+            </tr>
+            <tr>
+              <td>--verbose, -v</td>
+              <td>Stream ACP client logs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <div class="grid-2">
-          <article class="panel">
-            <h3>High-level API</h3>
-            <pre><code>import { runDeadpoolRunner } from "@arcqdev/deadpool-runner";
+    <section id="sdk">
+      <div class="container">
+        <h2 class="section-title">SDK</h2>
+        <p class="sub-lead">Embed the regeneration loop in your own tooling.</p>
 
-const result = await runDeadpoolRunner({
-  cwd: process.cwd(),
-  command: ["vp", "test"],
-  retries: 2,
-  initialPrompt: "TypeScript package. Keep fixes minimal.",
-  acpClient: {
-    name: "codex",
-    model: "gpt-5.4",
-    sandbox: "workspace-write",
-  },
+        <pre><code><span class="code-keyword">import</span> { runDeadpoolRunner } <span class="code-keyword">from</span> <span class="code-string">"@arcqdev/deadpool-runner"</span>;
+
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> runDeadpoolRunner({
+  command: [<span class="code-string">"vp"</span>, <span class="code-string">"test"</span>],
+  retries: <span class="code-string">2</span>,
+  initialPrompt: <span class="code-string">"TypeScript package. Keep fixes minimal."</span>,
+  acpClient: { name: <span class="code-string">"codex"</span>, model: <span class="code-string">"gpt-5.4"</span> },
 });
 
-if (result.code !== 0) {
-  throw new Error(`Repair loop failed with exit code ${result.code}`);
-}</code></pre>
-          </article>
+<span class="code-keyword">if</span> (result.code !== <span class="code-string">0</span>) <span class="code-keyword">throw new</span> Error(<span class="code-string">`failed: </span>${result.code}<span class="code-string">`</span>);</code></pre>
 
-          <article class="panel">
-            <h3>Advanced runner injection</h3>
-            <pre><code>import { createRunner } from "@arcqdev/deadpool-runner";
+        <p class="sub-lead">Plug in your own repair backend — the registry is public.</p>
+        <pre><code><span class="code-keyword">import</span> { registerACPClient, runDeadpoolRunner } <span class="code-keyword">from</span> <span class="code-string">"@arcqdev/deadpool-runner"</span>;
 
-const runner = createRunner({
-  runCommand: async (command, options) => {
-    return {
-      code: 0,
-      signal: null,
-      stdout: "ok\n",
-      stderr: "",
-      combinedOutput: "ok\n",
-    };
-  },
-});
-
-await runner.run({
-  command: ["vp", "test"],
-});</code></pre>
-          </article>
-        </div>
-      </section>
-
-      <section id="clients">
-        <div class="examples-header">
-          <div>
-            <div class="kicker">Custom ACP Clients</div>
-            <h2 class="section-title">Register your own repair backend</h2>
-          </div>
-          <p>The registry is public so SDK consumers can plug in other ACP implementations.</p>
-        </div>
-
-        <article class="panel">
-          <pre><code>import {
-  registerACPClient,
-  runDeadpoolRunner,
-  type ACPClient,
-  type ACPClientConfig,
-} from "@arcqdev/deadpool-runner";
-
-registerACPClient("internal-agent", (config?: ACPClientConfig): ACPClient => ({
-  name: "internal-agent",
-  async fixFailure(context) {
-    console.log("repairing", context.command, "with", config?.model ?? "default");
-    return { summary: "Applied internal-agent repair." };
+registerACPClient(<span class="code-string">"internal-agent"</span>, () => ({
+  name: <span class="code-string">"internal-agent"</span>,
+  <span class="code-keyword">async</span> fixFailure(context) {
+    <span class="code-keyword">return</span> { summary: <span class="code-string">"Applied internal-agent repair."</span> };
   },
 }));
 
-await runDeadpoolRunner({
-  command: ["vp", "test"],
-  acpClient: {
-    name: "internal-agent",
-    model: "my-internal-model",
-  },
-});</code></pre>
-        </article>
-      </section>
+<span class="code-keyword">await</span> runDeadpoolRunner({ command: [<span class="code-string">"vp"</span>, <span class="code-string">"test"</span>], acpClient: { name: <span class="code-string">"internal-agent"</span> } });</code></pre>
+      </div>
+    </section>
 
-      <section>
-        <div class="grid-2">
-          <article class="table-card">
-            <div class="kicker">CLI Flags</div>
-            <h3>Common options</h3>
-            <table class="flag-table">
-              <thead>
-                <tr>
-                  <th>Flag</th>
-                  <th>Usage</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>--retries &lt;n&gt;</code></td>
-                  <td>Set the max fix attempts after the initial failure.</td>
-                </tr>
-                <tr>
-                  <td><code>--prompt &lt;text&gt;</code></td>
-                  <td>Send additional repository context to the fixer.</td>
-                </tr>
-                <tr>
-                  <td><code>--cwd</code>, <code>--repo</code></td>
-                  <td>Run against another working directory.</td>
-                </tr>
-                <tr>
-                  <td><code>--client</code>, <code>--model</code></td>
-                  <td>Pick the ACP backend and model.</td>
-                </tr>
-                <tr>
-                  <td><code>--sandbox</code></td>
-                  <td>
-                    Choose <code>read-only</code>, <code>workspace-write</code>, or
-                    <code>danger-full-access</code>.
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>--max-output-chars</code></td>
-                  <td>Trim the trailing failure output sent to the fixer.</td>
-                </tr>
-                <tr>
-                  <td><code>--verbose</code></td>
-                  <td>Stream ACP client logs during repair attempts.</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-
-          <article class="site-note">
-            <div class="kicker">Operational Notes</div>
-            <h3>Repeat-failure critique and deployment</h3>
-            <p>
-              The critique loop is enabled by default and stops early when the same failure repeats
-              too many times. CI and GitHub Pages deployment live in the same workflow so the site
-              only publishes after validation passes.
-            </p>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <footer class="shell">
-      <div class="footer">
-        <div>Deadpool Runner is MIT licensed and published by arcqdev.</div>
-        <div>
-          <a href="https://github.com/arcqdev/deadpool-runner">GitHub</a>
-          ·
-          <a href="https://www.npmjs.com/package/@arcqdev/deadpool-runner">npm</a>
-        </div>
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-brand">deadpool-runner</div>
+        <ul class="footer-links">
+          <li>
+            <a href="https://github.com/arcqdev/deadpool-runner" target="_blank" rel="noopener"
+              >GitHub</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.npmjs.com/package/@arcqdev/deadpool-runner"
+              target="_blank"
+              rel="noopener"
+              >npm</a
+            >
+          </li>
+          <li>
+            <a href="https://foldablestack.com/dev/" target="_blank" rel="noopener">Run Suite</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/arcqdev/deadpool-runner/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener"
+              >MIT</a
+            >
+          </li>
+        </ul>
+        <p class="footer-copy">&copy; 2026 arcqdev · Maximum effort.</p>
       </div>
     </footer>
 
     <script>
-      const copyButton = document.getElementById("copy-install");
-      const installCommand = document.getElementById("install-command");
-
-      copyButton?.addEventListener("click", async () => {
-        const command = installCommand?.textContent?.trim();
-        if (!command) return;
-
-        try {
-          await navigator.clipboard.writeText(command);
-          copyButton.textContent = "Copied";
-          window.setTimeout(() => {
-            copyButton.textContent = "Copy";
-          }, 1200);
-        } catch {
-          copyButton.textContent = "Copy failed";
-          window.setTimeout(() => {
-            copyButton.textContent = "Copy";
-          }, 1200);
+      document.querySelector(".install-bar")?.addEventListener("click", function () {
+        const hint = this.querySelector(".copy-hint");
+        if (hint) {
+          hint.textContent = "copied!";
+          setTimeout(() => (hint.textContent = "click to copy"), 2000);
         }
       });
     </script>
